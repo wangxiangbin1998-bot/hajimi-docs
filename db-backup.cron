@@ -1,0 +1,1 @@
+30 4 * * * /opt/newapi/db-backup.sh >> /opt/newapi/backups/backup.log 2>&1
