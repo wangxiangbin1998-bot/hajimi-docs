@@ -67,10 +67,10 @@
 <a class="nav-item" data-slug="ccswitch-6-chatgpt" href="#ccswitch-6-chatgpt">ChatGPT 桌面版接入</a>
 <a class="nav-item" data-slug="ccswitch-7-cli" href="#ccswitch-7-cli">CC Switch CLI（命令行版，简版）</a>
 <div class="nav-sec">进阶客户端</div>
-<a class="nav-item" data-slug="advanced-opencode" href="#advanced-opencode">进阶客户端 · OpenCode 配置</a>
-<a class="nav-item" data-slug="advanced-aionui" href="#advanced-aionui">进阶客户端 · AionUI 配置</a>
-<a class="nav-item" data-slug="advanced-workbuddy" href="#advanced-workbuddy">进阶客户端 · WorkBuddy 配置</a>
-<a class="nav-item" data-slug="advanced-openclaw" href="#advanced-openclaw">进阶客户端 · OpenClaw 配置</a>
+<a class="nav-item" data-slug="advanced-opencode" href="#advanced-opencode">OpenCode 配置</a>
+<a class="nav-item" data-slug="advanced-aionui" href="#advanced-aionui">AionUI 配置</a>
+<a class="nav-item" data-slug="advanced-workbuddy" href="#advanced-workbuddy">WorkBuddy 配置</a>
+<a class="nav-item" data-slug="advanced-openclaw" href="#advanced-openclaw">OpenClaw 配置</a>
 <div class="nav-sec">常见问题</div>
 <a class="nav-item" data-slug="faq-claude-code" href="#faq-claude-code">Claude Code 常见问题</a>
 <a class="nav-item" data-slug="faq-codex" href="#faq-codex">Codex 常见问题</a>
@@ -196,7 +196,7 @@
 <article class="page" id="page-guide-状态与监控说明"><h1>服务状态与监控说明</h1>
 <p>想知道&quot;现在能不能用、哪个分组快&quot;，看这三个地方，不用问人：</p>
 <h2>1. 控制台概览 · API 信息</h2>
-<p>登录后的概览页有 API 信息区，显示接口地址和实时延迟检测。延迟明显变大或检测不通，说明线路或上游在波动，可以先换个分组试，或等几分钟再看。</p>
+<p>登录后的概览页有 API 信息区，显示接口地址和实时延迟检测。延迟明显变大或检测不通，说明线路或号源在波动，可以先换个分组试，或等几分钟再看。</p>
 <h2>2. 模型广场 · 模型卡片</h2>
 <p>每个模型卡片底部有平台实测的<strong>吞吐、延迟、成功率</strong>和采样时间。挑分组时除了看价格，也看成功率：某个分组成功率明显掉了，先避开它，用同模型的其他分组。</p>
 <h2>3. 你的使用日志</h2>
@@ -208,23 +208,30 @@
 <p>CC Switch 是一个开源的桌面小工具（项目地址：<a href="https://github.com/farion1231/cc-switch">https://github.com/farion1231/cc-switch</a> ），专门用来管理 Claude Code、Codex 等命令行工具的接口配置：图形界面里加好供应商，点一下就能切换，不用手动改配置文件。</p>
 <p>本站没有在 CC Switch 里内置模板，但本站密钥页提供「一键导入」，效果一样，还更省事；手动添加的方法各分篇里也都写了。</p>
 <h2>下载安装</h2>
-<p>到 CC Switch 的 GitHub Releases 页面下载对应系统的安装包：</p>
+<p>本站把常用安装包备了一份在蓝奏云（当前版本 v4.0.21），国内下载更快，按你的系统选一个：</p>
 <p><strong>Windows</strong></p>
 <ul>
-<li>普通电脑下载 <code>CC-Switch-v版本号-Windows.msi</code> 安装包</li>
-<li>不想安装就下免安装版 <code>CC-Switch-v版本号-Windows-Portable.zip</code></li>
-<li>ARM 机器选文件名带 <code>arm64</code> 的</li>
+<li>免安装版（解压即用）：<code>CC-Switch-v4.0.21-Windows-Portable.zip</code>
+下载地址：
+<code>https://wwaxc.lanzouq.com/imxIC4dvhorc</code></li>
+<li>安装版 <code>CC-Switch-v4.0.21-Windows.msi</code> 和 ARM 机器用的 <code>arm64</code> 版：到 GitHub Releases 页面下载（地址见文首）</li>
 </ul>
 <p><strong>macOS</strong></p>
 <ul>
-<li>推荐用 Homebrew 安装：终端运行 <code>brew install --cask cc-switch</code>，以后升级用 <code>brew upgrade --cask cc-switch</code></li>
-<li>也可以直接下 <code>CC-Switch-v版本号-macOS.dmg</code>；安装包是通用版，Apple 芯片和 Intel 芯片都能用，已签名公证，可直接打开</li>
+<li>安装包（通用版，Apple 芯片和 Intel 芯片都能用，已签名公证，可直接打开）：<code>CC-Switch-v4.0.21-macOS.dmg</code>
+下载地址：
+<code>https://wwaxc.lanzouq.com/ijWnO4dvi0vi</code></li>
+<li>也可以用 Homebrew 安装：终端运行 <code>brew install --cask cc-switch</code>，以后升级用 <code>brew upgrade --cask cc-switch</code></li>
 </ul>
 <p><strong>Linux</strong></p>
 <ul>
-<li>Debian/Ubuntu：到 Releases 页面确认最新版本号，下 <code>CC-Switch-v版本号-Linux-x86_64.deb</code>（ARM 机器换 <code>arm64</code>），用 <code>sudo dpkg -i 文件名.deb</code> 安装</li>
-<li>Fedora 等 RPM 系把 <code>.deb</code> 换成 <code>.rpm</code>；其他发行版可下 <code>.AppImage</code> 直接运行</li>
-<li>Arch Linux：<code>paru -S cc-switch-bin</code></li>
+<li>Debian/Ubuntu：<code>CC-Switch-v4.0.21-Linux-x86_64.deb</code>，下载后用 <code>sudo dpkg -i 文件名.deb</code> 安装
+下载地址：
+<code>https://wwaxc.lanzouq.com/iP2HD4dvi8af</code></li>
+<li>Fedora 等 RPM 系：<code>CC-Switch-v4.0.21-Linux-x86_64.rpm</code>
+下载地址：
+<code>https://wwaxc.lanzouq.com/iz61s4dvicih</code></li>
+<li>ARM 机器和其他发行版（AppImage 版）到 GitHub Releases 页面下载；Arch Linux 可用 <code>paru -S cc-switch-bin</code></li>
 </ul>
 <h2>系统要求</h2>
 <ul>
@@ -407,7 +414,7 @@ cc-switch update                           # 更新自身
 <li>切换后没生效，先查环境变量：如果系统里设了 <code>ANTHROPIC_API_KEY</code>、<code>OPENAI_API_KEY</code> 等变量，工具会优先读变量、盖掉这里的配置，用 <code>cc-switch env check</code> 能查出来</li>
 </ul>
 </article>
-<article class="page" id="page-advanced-opencode"><h1>进阶客户端 · OpenCode 配置</h1>
+<article class="page" id="page-advanced-opencode"><h1>OpenCode 配置</h1>
 <p>OpenCode 是开源的 AI 编程助手，能在终端、IDE、桌面端用，支持多家模型提供商。用 CC Switch 配置最省事。</p>
 <h2>安装</h2>
 <p>终端全局安装：</p>
@@ -434,7 +441,7 @@ cc-switch update                           # 更新自身
 <p>找不到模型或报 403：多半是密钥分组和模型对不上——回模型广场确认该模型在你密钥的分组里。</p>
 </blockquote>
 </article>
-<article class="page" id="page-advanced-aionui"><h1>进阶客户端 · AionUI 配置</h1>
+<article class="page" id="page-advanced-aionui"><h1>AionUI 配置</h1>
 <p>AionUI 是给命令行 AI 工具套的图形界面（开源免费，项目地址：<a href="https://github.com/iOfficeAI/AionUi">https://github.com/iOfficeAI/AionUi</a> ）：自动识别本地的 Claude Code、Codex 等工具，多会话并行、文件预览、本地存数据，适合不想碰终端的人。</p>
 <h2>下载安装</h2>
 <ul>
@@ -484,7 +491,7 @@ cc-switch update                           # 更新自身
 <p>本站暂未上架 Gemini 模型，AionUI 里的 Gemini 入口先不用管。</p>
 </blockquote>
 </article>
-<article class="page" id="page-advanced-workbuddy"><h1>进阶客户端 · WorkBuddy 配置</h1>
+<article class="page" id="page-advanced-workbuddy"><h1>WorkBuddy 配置</h1>
 <p>WorkBuddy 是腾讯出品的 AI 办公工作台（自然语言下任务，AI 自己拆步骤、调工具，交付文档/表格/PPT 等成果），支持在界面里添加第三方模型。把本站接进去等于给它换一个更便宜的模型来源。</p>
 <h2>准备</h2>
 <ol>
@@ -508,7 +515,7 @@ cc-switch update                           # 更新自身
 <li>回到任务对话界面，点输入框旁的模型选择器，选刚配的模型，发一条消息，能正常回复即接入成功</li>
 </ol>
 </article>
-<article class="page" id="page-advanced-openclaw"><h1>进阶客户端 · OpenClaw 配置</h1>
+<article class="page" id="page-advanced-openclaw"><h1>OpenClaw 配置</h1>
 <p>OpenClaw 是跑在服务器/Mac 上的个人 AI 助手网关（接 Telegram 等聊天软件使唤它干活）。这一页讲怎么把它的模型来源换成本站。适合 Linux 云服务器和 macOS 用户。</p>
 <h2>安装与初始化</h2>
 <p>终端运行官方安装脚本：</p>
@@ -850,12 +857,12 @@ web_search_request = true
 </tr>
 <tr>
 <td>429 Too Many Requests</td>
-<td>请求太频繁或上游正忙</td>
+<td>请求太频繁或号源正忙</td>
 <td>降并发、等几十秒重试；持续出现就换个分组试试</td>
 </tr>
 <tr>
-<td>500 / 502 / 上游错误</td>
-<td>上游波动</td>
+<td>500 / 502 / 号源侧错误</td>
+<td>号源侧波动</td>
 <td>等一两分钟重试；反复出现可以换同模型的另一个分组，或到 QQ 群看公告是不是在维护</td>
 </tr>
 <tr>
@@ -875,7 +882,7 @@ web_search_request = true
 <p>生效日期：2026-10-28</p>
 <p>欢迎使用哈吉米 API（下称「本平台」）。注册或使用本平台服务，即表示你已阅读并同意本条款。本条款与站内注册时同意的《用户协议》为同一文本。</p>
 <h2>一、服务内容</h2>
-<p>本平台提供大模型 API 接口的中转调用服务，按实际用量计费。模型能力由上游服务商提供，本平台负责接入、计费与转发。</p>
+<p>本平台提供大模型 API 接口的中转调用服务，按实际用量计费。模型能力由号源号池供应商提供，本平台负责接入、计费与转发。</p>
 <h2>二、账号</h2>
 <ol>
 <li>你应使用真实有效的邮箱注册，并妥善保管账号与 API 密钥；通过你的账号与密钥发起的全部调用，均视为你本人行为。</li>
@@ -893,15 +900,15 @@ web_search_request = true
 <ol>
 <li>违反法律法规的行为，或生成、传播违法违规内容；</li>
 <li>侵犯他人合法权益（包括知识产权、隐私权）；</li>
-<li>对本平台或上游服务进行攻击、扫描、压测，或以自动化手段恶意刷量、薅取免费额度；</li>
+<li>对本平台或号源号池供应商的服务进行攻击、扫描、压测，或以自动化手段恶意刷量、薅取免费额度；</li>
 <li>将接口转售、转租给第三方，或用于违反模型服务商使用条款的场景；</li>
-<li>其他损害本平台或上游服务商正常运营的行为。</li>
+<li>其他损害本平台或号源号池供应商正常运营的行为。</li>
 </ol>
 <p>违反上述约定，本平台可采取警告、限制调用、封停账号等措施，余额处理按第三条第 4 款执行。具体禁止情形见<a href="#tos-%E4%BD%BF%E7%94%A8%E6%94%BF%E7%AD%96">使用政策</a>。</p>
 <h2>五、服务可用性</h2>
-<p>本平台尽力保持服务稳定，但不承诺服务不间断。因上游服务商调整、网络故障、计划内维护等导致的延迟、中断或计费误差，本平台在合理范围内协助处理，但不承担间接损失。重要业务建议自行准备备用渠道。</p>
+<p>本平台尽力保持服务稳定，但不承诺服务不间断。因号源号池供应商调整、网络故障、计划内维护等导致的延迟、中断或计费误差，本平台在合理范围内协助处理，但不承担间接损失。重要业务建议自行准备备用渠道。</p>
 <h2>六、责任限制</h2>
-<p>模型输出由上游模型生成，本平台不对输出内容的准确性、合法性负责；你应自行判断并承担使用输出的后果。</p>
+<p>模型输出由号源号池供应商的模型生成，本平台不对输出内容的准确性、合法性负责；你应自行判断并承担使用输出的后果。</p>
 <h2>七、协议变更</h2>
 <p>本条款可随业务调整修订，修订后在站内公告，继续使用即视为接受。</p>
 <h2>八、联系方式</h2>
@@ -910,7 +917,7 @@ web_search_request = true
 </article>
 <article class="page" id="page-tos-使用政策"><h1>使用政策</h1>
 <p>生效日期：2026-10-28</p>
-<p>本政策是《服务条款》第四条的细化，说明哪些使用方式不被允许。你的使用还必须同时符合上游模型服务商的使用政策；上游政策与本政策冲突时，以更严格者为准。</p>
+<p>本政策是《服务条款》第四条的细化，说明哪些使用方式不被允许。你的使用还必须同时符合号源号池供应商的使用政策；其政策与本政策冲突时，以更严格者为准。</p>
 <h2>一、禁止的内容与行为</h2>
 <p>不得通过本平台生成、处理或传播：</p>
 <ol>
@@ -923,9 +930,14 @@ web_search_request = true
 <ol>
 <li>共享、出租、转售账号或 API 密钥；</li>
 <li>以自动化手段批量注册账号、薅取赠送额度或签到奖励；</li>
-<li>对本平台或上游接口进行扫描、压测、攻击，或故意发送异常请求干扰服务；</li>
+<li>对本平台或号源号池供应商的接口进行扫描、压测、攻击，或故意发送异常请求干扰服务；</li>
 <li>将模型输出用于训练、蒸馏与本平台所接入模型构成竞争的模型（特定分组另有明示禁令的，从其规定，见《服务特定条款》）；</li>
-<li>绕过本平台的计费、限流与安全措施。</li>
+<li>绕过本平台的计费、限流与安全措施；</li>
+<li>未经本平台书面授权，利用本平台接口搭建对外提供 API 转售、分销服务的站点或系统；</li>
+<li>以任何方式探测、套取、测绘本平台的号源构成、号池供应商及渠道信息；</li>
+<li>因用户自身保管不当（包括将 API 密钥发布到公开代码仓库、群聊等公开渠道）导致密钥泄露、被盗用的，损失由用户自行承担；本平台有权先行暂停相关密钥以止损；</li>
+<li>持续超出所选分组的并发与速率上限调用，或以长连接、慢请求等方式占用服务资源（本平台有权对超出合理使用范围的调用进行限流）；</li>
+<li>冒用他人身份注册、充值，使用无权使用的支付方式，或在充值后恶意拒付。</li>
 </ol>
 <h2>三、违规处理</h2>
 <p>视情节轻重，本平台可采取：警告、限制调用、暂停密钥、封停账号。封停账号的余额处理按《服务条款》第三条第 4 款执行（不予退还）。涉及违法犯罪的，本平台保留移交有关机关的权利。</p>
@@ -960,8 +972,8 @@ web_search_request = true
 </ol>
 <h2>五、数据处理</h2>
 <ol>
-<li>你的请求内容经本平台转发至上游模型服务商处理，上游的处理适用其各自政策；本平台仅留存计费所需的元数据日志（时间、模型、用量、金额），细则见站内《隐私政策》。</li>
-<li>请勿通过本平台发送你无权处理或不希望被上游处理的敏感个人信息。</li>
+<li>你的请求内容经本平台转发至号源号池供应商处理，其处理适用其各自政策；本平台仅留存计费所需的元数据日志（时间、模型、用量、金额），细则见站内《隐私政策》。</li>
+<li>请勿通过本平台发送你无权处理或不希望被号源号池供应商处理的敏感个人信息。</li>
 </ol>
 <h2>六、可用性</h2>
 <p>各分组的可用模型、价格与倍率以站内实时展示为准，调整按《服务条款》第三条执行（公告后生效、不追溯）。生图等未开放功能不在本条款覆盖范围内，开放后另行公告。</p>
