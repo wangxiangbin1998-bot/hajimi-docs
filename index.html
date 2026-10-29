@@ -82,7 +82,7 @@
 <a class="nav-item" data-slug="tos-服务特定条款" href="#tos-服务特定条款">服务特定条款</a>
 <a class="nav-item" data-slug="tos-支持的国家和地区" href="#tos-支持的国家和地区">支持的国家和地区</a></nav>
   <main><article class="page" id="page-README"><h1>哈吉米 API 使用文档</h1>
-<p>本站（哈吉米 API，<a href="https://hajimi.men%EF%BC%89%E7%9A%84%E6%8E%A5%E5%85%A5%E4%B8%8E%E9%85%8D%E7%BD%AE%E6%95%99%E7%A8%8B%E3%80%82%E7%85%A7%E7%9D%80%E5%81%9A%EF%BC%8C%E5%9F%BA%E6%9C%AC%E4%B8%8D%E4%BC%9A%E5%87%BA%E9%97%AE%E9%A2%98%EF%BC%9B%E5%81%9A%E4%B8%8D%E9%80%9A%E6%97%B6%EF%BC%8C%E6%8A%8A%E4%BD%A0%E5%8D%A1%E4%BD%8F%E7%9A%84%E6%AD%A5%E9%AA%A4%E5%92%8C%E6%8A%A5%E9%94%99%E6%88%AA%E5%9B%BE%E5%8F%91%E5%88%B0">https://hajimi.men）的接入与配置教程。照着做，基本不会出问题；做不通时，把你卡住的步骤和报错截图发到</a> QQ 群（群号见站内公告），管理员会看。</p>
+<p>本站是哈吉米 API 的接入与配置教程，站点地址见下面「先记住两个地址」。照着做，基本不会出问题；做不通时，把你卡住的步骤和报错截图发到 QQ 群（群号见站内公告），管理员会看。</p>
 <h2>先记住两个地址</h2>
 <table>
 <thead>
@@ -92,21 +92,21 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>控制台（注册、充值、建令牌、查用量）</td>
-<td><a href="https://hajimi.men">https://hajimi.men</a></td>
+<td>控制台（注册、充值、建密钥、查用量）</td>
+<td><code>https://hajimi.men</code></td>
 </tr>
 <tr>
 <td>接口地址（填进各种工具里的）</td>
-<td>Claude 类工具填 <a href="https://hajimi.men">https://hajimi.men</a> ；OpenAI 兼容工具填 <a href="https://hajimi.men/v1">https://hajimi.men/v1</a></td>
+<td>Claude 类工具填 <code>https://hajimi.men</code>；OpenAI 兼容工具填 <code>https://hajimi.men/v1</code></td>
 </tr>
 </tbody></table>
 <p>填错这两个地址是新手最常见的翻车点，各篇教程里还会再提醒。</p>
-<h2>令牌先选对分组</h2>
-<p>建令牌时要选分组，分组决定你能用哪些模型、按什么倍率扣费：</p>
+<h2>密钥先选对分组</h2>
+<p>建密钥时要选分组，分组决定你能用哪些模型、按什么倍率扣费：</p>
 <ul>
-<li>用 Claude Code / Claude Desktop → 建 <strong>Claude 分组</strong>的令牌（速刷、正价池、Max 满血三档，按需选）</li>
-<li>用 Codex / ChatGPT → 建 <strong>GPT 分组</strong>的令牌（小杯、中杯、大杯三档）</li>
-<li>用国产模型 → 建 <strong>国模分组</strong>的令牌</li>
+<li>用 Claude Code / Claude Desktop → 建 <strong>Claude 分组</strong>的密钥（速刷、正价池、Max 满血三档，按需选）</li>
+<li>用 Codex / ChatGPT → 建 <strong>GPT 分组</strong>的密钥（小杯、中杯、大杯三档）</li>
+<li>用国产模型 → 建 <strong>国模分组</strong>的密钥</li>
 </ul>
 <p>选错分组会出现没模型、403 之类的报错。各分组当前包含的模型和价格，以站内「模型广场」实时展示为准。</p>
 <h2>目录</h2>
@@ -153,7 +153,7 @@
 </article>
 <article class="page" id="page-guide-充值与计费说明"><h1>充值与计费说明</h1>
 <h2>余额是什么</h2>
-<p>本站余额以美元（$）计价显示。调用模型时按「模型基础价 × 令牌分组倍率」扣费，每笔消费都能在控制台「使用日志」里查到（模型、Token 数、金额、时间）。</p>
+<p>本站余额以美元（$）计价显示。调用模型时按「模型基础价 × 密钥分组倍率」扣费，每笔消费都能在控制台「使用日志」里查到（模型、Token 数、金额、时间）。</p>
 <h2>怎么充值</h2>
 <p>登录后进入左侧「钱包」：</p>
 <ol>
@@ -178,7 +178,7 @@
 <p>入口：控制台右上角「模型广场」，登录后可见。</p>
 <h2>怎么看</h2>
 <ul>
-<li><strong>左侧「可用令牌分组」</strong>：点某个分组，右侧只剩这个分组能用的模型。分组名后面带的就是倍率（如 ×0.25）</li>
+<li><strong>左侧「可用密钥分组」</strong>：点某个分组，右侧只剩这个分组能用的模型。分组名后面带的就是倍率（如 ×0.25）</li>
 <li><strong>模型卡片</strong>：右上角小字是所属分组；卡片里有模型 ID（配置工具时原样复制这个）、输入 / 输出 / 缓存读取价格；底部是平台实测的吞吐、延迟和成功率（带采样时间，挑分组时可以参考）</li>
 <li><strong>左侧「端点类型」</strong>：按请求协议筛选（anthropic、openai 等）——你的工具走哪种协议就筛哪种</li>
 <li><strong>右上角「表格视图」</strong>：一次看全所有模型的价格，适合比价</li>
@@ -190,8 +190,8 @@
 <li>倍率大于 1 是加价档（如满血分组），买的是更好的池子和稳定性</li>
 </ul>
 <p>同一个模型可能出现在多个分组里，价不同、池子不同：便宜档适合日常跑量，高档适合长任务和求稳，按活选，别只盯最便宜的。</p>
-<h2>和令牌的关系</h2>
-<p>建令牌时选的分组，决定这个令牌能调哪些模型、按哪档倍率扣费。所以顺序是：<strong>先在模型广场选好模型和分组 → 再去令牌管理建对应分组的令牌 → 最后把令牌配进工具</strong>。</p>
+<h2>和密钥的关系</h2>
+<p>建密钥时选的分组，决定这个密钥能调哪些模型、按哪档倍率扣费。所以顺序是：<strong>先在模型广场选好模型和分组 → 再去密钥管理建对应分组的密钥 → 最后把密钥配进工具</strong>。</p>
 </article>
 <article class="page" id="page-guide-状态与监控说明"><h1>服务状态与监控说明</h1>
 <p>想知道&quot;现在能不能用、哪个分组快&quot;，看这三个地方，不用问人：</p>
@@ -206,7 +206,7 @@
 </article>
 <article class="page" id="page-ccswitch-1-通用步骤"><h1>CC Switch · 通用步骤（下载与安装）</h1>
 <p>CC Switch 是一个开源的桌面小工具（项目地址：<a href="https://github.com/farion1231/cc-switch">https://github.com/farion1231/cc-switch</a> ），专门用来管理 Claude Code、Codex 等命令行工具的接口配置：图形界面里加好供应商，点一下就能切换，不用手动改配置文件。</p>
-<p>本站没有在 CC Switch 里内置模板，但本站令牌页提供「一键导入」，效果一样，还更省事；手动添加的方法各分篇里也都写了。</p>
+<p>本站没有在 CC Switch 里内置模板，但本站密钥页提供「一键导入」，效果一样，还更省事；手动添加的方法各分篇里也都写了。</p>
 <h2>下载安装</h2>
 <p>到 CC Switch 的 GitHub Releases 页面下载对应系统的安装包：</p>
 <p><strong>Windows</strong></p>
@@ -234,7 +234,7 @@
 </ul>
 <h2>开始配置之前</h2>
 <ol>
-<li>先在本站（<a href="https://hajimi.men%EF%BC%89%E6%B3%A8%E5%86%8C%E8%B4%A6%E5%8F%B7%E3%80%81%E5%85%85%E5%80%BC%E3%80%81%E5%BB%BA%E5%A5%BD%E4%BB%A4%E7%89%8C%E2%80%94%E2%80%94%E7%94%A8%E5%93%AA%E4%B8%AA%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%B0%B1%E5%BB%BA%E5%93%AA%E4%B8%AA%E5%88%86%E7%BB%84%E7%9A%84%E4%BB%A4%E7%89%8C%EF%BC%88%E8%A7%81%E6%96%87%E6%A1%A3%E9%A6%96%E9%A1%B5%E7%9A%84%E5%88%86%E7%BB%84%E8%AF%B4%E6%98%8E%EF%BC%89">https://hajimi.men）注册账号、充值、建好令牌——用哪个工具，就建哪个分组的令牌（见文档首页的分组说明）</a></li>
+<li>先在本站注册账号、充值、建好密钥——用哪个工具，就建哪个分组的密钥（站点地址和分组说明见文档首页）</li>
 <li>确认你的 Claude Code / Codex 命令行本身能正常启动（装 Node.js、装 CLI 的步骤见各工具官方说明）</li>
 <li>然后按你用的工具看对应分篇：</li>
 </ol>
@@ -245,11 +245,11 @@
 </ul>
 </article>
 <article class="page" id="page-ccswitch-2-claude-code"><h1>CC Switch · Claude Code 配置</h1>
-<p>前提：已装好 CC Switch 和 Claude Code，并且在本站建好了 <strong>Claude 分组</strong>的令牌。两种配法，任选其一。</p>
+<p>前提：已装好 CC Switch 和 Claude Code，并且在本站建好了 <strong>Claude 分组</strong>的密钥。两种配法，任选其一。</p>
 <h2>方法一：一键导入（推荐）</h2>
 <ol>
-<li>登录本站，进入「令牌管理」，找到你建好的 Claude 分组令牌</li>
-<li>点令牌旁的「一键导入」，在客户端列表里选 <strong>CC Switch</strong></li>
+<li>登录本站，进入「密钥管理」，找到你建好的 Claude 分组密钥</li>
+<li>点密钥旁的「一键导入」，在客户端列表里选 <strong>CC Switch</strong></li>
 <li>浏览器会唤起 CC Switch 并把地址和密钥自动填好，确认导入</li>
 <li>在 CC Switch 左侧选 Claude Code，把刚导入的供应商点「切换」，卡片显示「使用中」</li>
 <li>终端运行 <code>claude</code>，随便发一句话，能收到回复即成功</li>
@@ -262,7 +262,7 @@
 <ul>
 <li>名称：哈吉米 API（随便起，认得出就行）</li>
 <li>请求地址：<code>https://hajimi.men</code></li>
-<li>API Key：粘贴你的 Claude 分组令牌</li>
+<li>API Key：粘贴你的 Claude 分组密钥</li>
 </ul>
 <ol start="3">
 <li>点「添加」保存</li>
@@ -273,15 +273,15 @@
 <ul>
 <li><strong>请求地址不要带 /v1</strong>。Claude Code 填 <code>https://hajimi.men</code>；带 /v1 的地址是给 Codex 那类 OpenAI 兼容工具用的，填错了会直接报错</li>
 <li><strong>也不要填成带路径的控制台页面地址</strong>，就填上面这一个根地址</li>
-<li>令牌要用 <strong>Claude 分组</strong>的。用 GPT 分组的令牌配 Claude Code，会出现没模型或 403</li>
+<li>密钥要用 <strong>Claude 分组</strong>的。用 GPT 分组的密钥配 Claude Code，会出现没模型或 403</li>
 </ul>
 </article>
 <article class="page" id="page-ccswitch-3-codex"><h1>CC Switch · Codex 配置</h1>
-<p>前提：已装好 CC Switch 和 Codex，并且在本站建好了 <strong>GPT 分组</strong>的令牌。两种配法，任选其一。</p>
+<p>前提：已装好 CC Switch 和 Codex，并且在本站建好了 <strong>GPT 分组</strong>的密钥。两种配法，任选其一。</p>
 <h2>方法一：一键导入（推荐）</h2>
 <ol>
-<li>登录本站，进入「令牌管理」，找到你建好的 GPT 分组令牌</li>
-<li>点令牌旁的「一键导入」，在客户端列表里选 <strong>CC Switch</strong></li>
+<li>登录本站，进入「密钥管理」，找到你建好的 GPT 分组密钥</li>
+<li>点密钥旁的「一键导入」，在客户端列表里选 <strong>CC Switch</strong></li>
 <li>浏览器唤起 CC Switch 自动填好配置后，确认导入；模型列表按下面方法二第 3 步检查一遍（自动带入的模型可能不全）</li>
 <li>在 CC Switch 左侧选 Codex，把供应商点「切换」，显示「使用中」</li>
 <li>彻底重启 Codex（见文末注意），终端运行 <code>codex</code> 测试对话</li>
@@ -291,7 +291,7 @@
 <li>打开 CC Switch，左侧栏选 <strong>Codex</strong>，上方标签保持 <strong>直连</strong></li>
 <li>点右上角「添加供应商」，选「自定义」填写：<ul>
 <li>名称：哈吉米 API</li>
-<li>API Key：粘贴你的 GPT 分组令牌</li>
+<li>API Key：粘贴你的 GPT 分组密钥</li>
 <li>API 请求地址：<code>https://hajimi.men/v1</code></li>
 </ul>
 </li>
@@ -312,13 +312,13 @@
 </article>
 <article class="page" id="page-ccswitch-4-claude-desktop"><h1>CC Switch · Claude Desktop 配置</h1>
 <p>先分清：Claude Desktop（桌面客户端）和 Claude Code（命令行/插件）在 CC Switch 里是<strong>两个独立入口</strong>，配置互不相通，要分别配。这一页说的是桌面客户端。</p>
-<p>前提：已装 Claude Desktop 和 CC Switch，在本站建好了 <strong>Claude 分组</strong>的令牌。</p>
+<p>前提：已装 Claude Desktop 和 CC Switch，在本站建好了 <strong>Claude 分组</strong>的密钥。</p>
 <h2>步骤</h2>
 <ol>
 <li>打开 CC Switch，在左侧应用切换器中选 <strong>Claude Desktop</strong> 入口</li>
 <li>点右上角「添加供应商」，选「自定义」填写：<ul>
 <li>名称：哈吉米 API</li>
-<li>API Key：粘贴你的 Claude 分组令牌</li>
+<li>API Key：粘贴你的 Claude 分组密钥</li>
 <li>请求地址：<code>https://hajimi.men</code>（结尾不要带斜杠，更不要带 /v1）</li>
 <li>接入方式：保持 <strong>直连</strong></li>
 </ul>
@@ -340,14 +340,14 @@
 </article>
 <article class="page" id="page-ccswitch-5-用量查询"><h1>CC Switch · 用量查询配置</h1>
 <p>配好之后，CC Switch 的供应商卡片上能直接显示本站余额，不用每次开网页查。</p>
-<p>注意：用量查询用的<strong>不是</strong>配供应商时填的 API Key，而是本站的「系统访问令牌 + 用户 ID」，要单独生成、单独填。</p>
+<p>注意：用量查询用的<strong>不是</strong>配供应商时填的 API Key，而是本站的「系统访问密钥 + 用户 ID」，要单独生成、单独填。</p>
 <h2>步骤</h2>
 <ol>
 <li>打开 CC Switch，在供应商卡片右侧点「…」菜单，选「配置用量查询」（Claude Code 和 Codex 面板的操作一样）</li>
 <li>打开「启用用量查询」，预设模板选 <strong>NewAPI</strong></li>
 <li>填三项：<ul>
 <li>请求地址：<code>https://hajimi.men</code></li>
-<li>访问令牌：登录本站，在「个人设置」里生成<strong>系统访问令牌</strong>，粘贴进来</li>
+<li>访问密钥：登录本站，在「个人设置」里生成<strong>系统访问密钥</strong>，粘贴进来</li>
 <li>用户 ID：个人设置页顶部显示的用户 ID，照填</li>
 </ul>
 </li>
@@ -374,7 +374,7 @@
 <ol>
 <li>先完全关闭 ChatGPT，确认 Codex 配置有效，再重新打开</li>
 <li>仍出现登录页时，点「使用其他方式登录」</li>
-<li>把本站 <strong>GPT 分组令牌</strong>粘贴到「OpenAI API 密钥」，点「继续」</li>
+<li>把本站 <strong>GPT 分组密钥</strong>粘贴到「OpenAI API 密钥」，点「继续」</li>
 <li>进入后发一条测试消息，能回复即生效</li>
 </ol>
 <h2>切换供应商后没生效</h2>
@@ -403,7 +403,7 @@ cc-switch update                           # 更新自身
 <h2>配置要点</h2>
 <ul>
 <li>目标 CLI 先运行一次（如 <code>claude --help</code>）让它生成自己的配置目录，再切换供应商</li>
-<li>供应商选「自定义」添加：名称随意，Claude Code 的请求地址填 <code>https://hajimi.men</code>，Codex 填 <code>https://hajimi.men/v1</code>，API Key 用本站对应分组的令牌</li>
+<li>供应商选「自定义」添加：名称随意，Claude Code 的请求地址填 <code>https://hajimi.men</code>，Codex 填 <code>https://hajimi.men/v1</code>，API Key 用本站对应分组的密钥</li>
 <li>切换后没生效，先查环境变量：如果系统里设了 <code>ANTHROPIC_API_KEY</code>、<code>OPENAI_API_KEY</code> 等变量，工具会优先读变量、盖掉这里的配置，用 <code>cc-switch env check</code> 能查出来</li>
 </ul>
 </article>
@@ -420,7 +420,7 @@ cc-switch update                           # 更新自身
 <li>按用的模型填：<ul>
 <li>供应商标识：<code>hajimi</code>（随意，认得出即可）</li>
 <li>接口格式：用 Claude 模型选 <strong>Anthropic</strong>；用 GPT 模型选 <strong>OpenAI</strong></li>
-<li>API Key：粘贴对应分组的令牌（Claude 模型用 Claude 分组，GPT 模型用 GPT 分组）</li>
+<li>API Key：粘贴对应分组的密钥（Claude 模型用 Claude 分组，GPT 模型用 GPT 分组）</li>
 <li>接口地址：Claude 格式填 <code>https://hajimi.men</code>；OpenAI 格式填 <code>https://hajimi.men/v1</code></li>
 </ul>
 </li>
@@ -431,7 +431,7 @@ cc-switch update                           # 更新自身
 <h2>验证</h2>
 <p>终端运行 <code>opencode</code>，输入 <code>/models</code>，能看到刚配的渠道和模型即成功，选一个开始对话测试。</p>
 <blockquote>
-<p>找不到模型或报 403：多半是令牌分组和模型对不上——回模型广场确认该模型在你令牌的分组里。</p>
+<p>找不到模型或报 403：多半是密钥分组和模型对不上——回模型广场确认该模型在你密钥的分组里。</p>
 </blockquote>
 </article>
 <article class="page" id="page-advanced-aionui"><h1>进阶客户端 · AionUI 配置</h1>
@@ -442,7 +442,7 @@ cc-switch update                           # 更新自身
 <li>macOS：<code>brew install aionui</code>，或到 Releases 下载 .dmg（Intel 与 Apple 芯片通用）</li>
 </ul>
 <h2>配置本站模型</h2>
-<p>先在本站建好令牌（用哪家模型建哪个分组），然后：</p>
+<p>先在本站建好密钥（用哪家模型建哪个分组），然后：</p>
 <ol>
 <li>打开 AionUI，进入「设置 → LLM 配置 → 添加模型」</li>
 <li>平台选 <strong>自定义</strong></li>
@@ -452,7 +452,7 @@ cc-switch update                           # 更新自身
 <thead>
 <tr>
 <th>用哪类模型</th>
-<th>令牌分组</th>
+<th>密钥分组</th>
 <th>API 请求地址</th>
 <th>模型</th>
 </tr>
@@ -460,24 +460,24 @@ cc-switch update                           # 更新自身
 <tbody><tr>
 <td>Claude</td>
 <td>Claude 分组</td>
-<td><a href="https://hajimi.men">https://hajimi.men</a></td>
+<td><code>https://hajimi.men</code></td>
 <td>模型广场 Claude 分组的模型名</td>
 </tr>
 <tr>
 <td>GPT</td>
 <td>GPT 分组</td>
-<td><a href="https://hajimi.men/v1">https://hajimi.men/v1</a></td>
+<td><code>https://hajimi.men/v1</code></td>
 <td>模型广场 GPT 分组的模型名</td>
 </tr>
 <tr>
 <td>国产模型</td>
 <td>国模分组</td>
-<td><a href="https://hajimi.men/v1">https://hajimi.men/v1</a></td>
+<td><code>https://hajimi.men/v1</code></td>
 <td>模型广场国模分组的模型名</td>
 </tr>
 </tbody></table>
 <ol start="4">
-<li>API Key 粘贴对应令牌，保存</li>
+<li>API Key 粘贴对应密钥，保存</li>
 <li>回主界面，在模型选择里选刚配好的模型开始用</li>
 </ol>
 <blockquote>
@@ -489,7 +489,7 @@ cc-switch update                           # 更新自身
 <h2>准备</h2>
 <ol>
 <li>安装并登录 WorkBuddy</li>
-<li>在本站建好令牌（用哪个模型就建哪个分组），记下要用的准确模型名（到模型广场里对）</li>
+<li>在本站建好密钥（用哪个模型就建哪个分组），记下要用的准确模型名（到模型广场里对）</li>
 <li>注意：<strong>模型名必须和该分组里的模型 ID 完全一致</strong>，填错会报模型不存在。Key 不要截图外发，录屏求助前先遮挡</li>
 </ol>
 <h2>步骤</h2>
@@ -499,8 +499,8 @@ cc-switch update                           # 更新自身
 <li>「提供商」列表展开，在「其他」分类里选「自定义 / Custom」</li>
 <li>填写：<ul>
 <li>接口地址：<code>https://hajimi.men/v1</code></li>
-<li>API Key：粘贴你的令牌</li>
-<li>模型名称：令牌分组下的模型 ID（如 Claude 分组的某个模型、国模分组的某个模型）</li>
+<li>API Key：粘贴你的密钥</li>
+<li>模型名称：密钥分组下的模型 ID（如 Claude 分组的某个模型、国模分组的某个模型）</li>
 <li>高级配置：按所选模型实际能力勾选（支持工具调用、思考模式的就勾上，其余保持默认）</li>
 </ul>
 </li>
@@ -522,7 +522,7 @@ cc-switch update                           # 更新自身
     &quot;providers&quot;: {
       &quot;hajimi&quot;: {
         &quot;baseUrl&quot;: &quot;https://hajimi.men&quot;,
-        &quot;apiKey&quot;: &quot;粘贴你的Claude分组令牌&quot;,
+        &quot;apiKey&quot;: &quot;粘贴你的Claude分组密钥&quot;,
         &quot;api&quot;: &quot;anthropic-messages&quot;,
         &quot;models&quot;: [
           { &quot;id&quot;: &quot;模型广场里Claude分组的模型名&quot;, &quot;name&quot;: &quot;显示名随意&quot; }
@@ -534,7 +534,7 @@ cc-switch update                           # 更新自身
 </code></pre>
 <p>要点：</p>
 <ul>
-<li>用 GPT 或国产模型时，把 <code>api</code> 改为 <code>openai-completions</code>，<code>baseUrl</code> 改为 <code>https://hajimi.men/v1</code>，令牌换成对应分组的</li>
+<li>用 GPT 或国产模型时，把 <code>api</code> 改为 <code>openai-completions</code>，<code>baseUrl</code> 改为 <code>https://hajimi.men/v1</code>，密钥换成对应分组的</li>
 <li>模型 <code>id</code> 必须和模型广场里该分组的模型名完全一致</li>
 <li>在配置里把默认模型设为 <code>hajimi/你的模型名</code>（按 OpenClaw 的模型引用格式）</li>
 </ul>
@@ -545,7 +545,7 @@ openclaw tui
 <p>TUI 里能正常对话即成功（<code>/quit</code> 退出）。浏览器管理界面用 <code>openclaw dashboard</code> 给出的地址打开。</p>
 <h2>常见坑</h2>
 <ul>
-<li>报模型不存在：模型 id 与广场不一致，或令牌分组不对</li>
+<li>报模型不存在：模型 id 与广场不一致，或密钥分组不对</li>
 <li>改了配置没生效：没重启 gateway</li>
 <li>服务器上跑还想从外网开管理界面：自己用反向代理加 HTTPS，并按 OpenClaw 官方说明处理网关鉴权，不要裸奔暴露端口</li>
 </ul>
@@ -639,7 +639,7 @@ openclaw tui
 <pre><code class="language-bash">jq &#39;. + {&quot;hasCompletedOnboarding&quot;: true}&#39; ~/.claude.json &gt; /tmp/tmp.json &amp;&amp; mv /tmp/tmp.json ~/.claude.json
 </code></pre>
 <h2>怎么切回 200K 上下文、顺便省钱</h2>
-<p>在 <code>~/.claude/settings.json</code>（Windows 是 <code>%userprofile%\.claude\settings.json</code>）的 <code>env</code> 里加入下面几项（和已有配置合并，别覆盖掉你的令牌配置）：</p>
+<p>在 <code>~/.claude/settings.json</code>（Windows 是 <code>%userprofile%\.claude\settings.json</code>）的 <code>env</code> 里加入下面几项（和已有配置合并，别覆盖掉你的密钥配置）：</p>
 <pre><code class="language-json">{
   &quot;env&quot;: {
     &quot;CLAUDE_CODE_DISABLE_1M_CONTEXT&quot;: &quot;1&quot;,
@@ -764,10 +764,10 @@ web_search_request = true
 <h2>403 报错（Forbidden）</h2>
 <p>按顺序自查：</p>
 <ol>
-<li><strong>令牌分组对不对</strong>：Codex 必须用 GPT 分组令牌；拿 Claude 分组的令牌来调 GPT 模型就是 403</li>
-<li><strong>模型在不在这个分组里</strong>：用模型广场确认该模型属于你令牌的分组</li>
+<li><strong>密钥分组对不对</strong>：Codex 必须用 GPT 分组密钥；拿 Claude 分组的密钥来调 GPT 模型就是 403</li>
+<li><strong>模型在不在这个分组里</strong>：用模型广场确认该模型属于你密钥的分组</li>
 <li><strong>余额够不够</strong>：钱包余额不足也会拒</li>
-<li><strong>令牌状态</strong>：令牌被禁用或过期，去令牌管理里看一眼</li>
+<li><strong>密钥状态</strong>：密钥被禁用或过期，去密钥管理里看一眼</li>
 </ol>
 <p>都正常还 403，截报错图到 QQ 群找管理员。</p>
 <h2>Connection failed（连接失败）</h2>
@@ -778,12 +778,12 @@ web_search_request = true
 <p>先说明：<strong>本站目前没有上架 Gemini 模型</strong>，后续上了会在公告里说。下面以国产模型为例演示（Cline，其他工具同理）。</p>
 <h2>以 Cline 为例（VS Code 插件）</h2>
 <ol>
-<li>在本站建一个<strong>国模分组</strong>的令牌，复制 Key</li>
+<li>在本站建一个<strong>国模分组</strong>的密钥，复制 Key</li>
 <li>VS Code 里装 Cline 插件（扩展里搜 Cline 安装），点左侧 Cline 图标打开</li>
 <li>进入 API 配置（首次打开会自动弹，已用过的点右上角齿轮进设置），按下面填：<ul>
 <li>API Provider：<strong>OpenAI Compatible</strong></li>
 <li>Base URL：<code>https://hajimi.men/v1</code></li>
-<li>API Key：粘贴你的国模分组令牌</li>
+<li>API Key：粘贴你的国模分组密钥</li>
 <li>Model ID：填模型广场里国模分组的模型名（以广场实时展示为准）</li>
 </ul>
 </li>
@@ -803,20 +803,20 @@ web_search_request = true
 </tr>
 <tr>
 <td>Base URL</td>
-<td><a href="https://hajimi.men/v1">https://hajimi.men/v1</a></td>
+<td><code>https://hajimi.men/v1</code></td>
 </tr>
 <tr>
 <td>API Key</td>
-<td>你在本站对应分组建的令牌</td>
+<td>你在本站对应分组建的密钥</td>
 </tr>
 <tr>
 <td>模型名</td>
 <td>模型广场里该分组的模型名，原样复制</td>
 </tr>
 </tbody></table>
-<p>换用别的分组同理：调 GPT 模型就用 GPT 分组令牌，调 Claude 模型就用 Claude 分组令牌（注意部分工具只认 OpenAI 格式，Claude 模型经兼容接口调用时表现以工具为准）。</p>
+<p>换用别的分组同理：调 GPT 模型就用 GPT 分组密钥，调 Claude 模型就用 Claude 分组密钥（注意部分工具只认 OpenAI 格式，Claude 模型经兼容接口调用时表现以工具为准）。</p>
 <h2>安全提醒</h2>
-<p>API Key 等于你的钱包，谁拿到都能花你的余额：不要发到群聊、不要出现在公开截图里。怀疑泄露了，立刻到本站令牌管理里删掉重建。</p>
+<p>API Key 等于你的钱包，谁拿到都能花你的余额：不要发到群聊、不要出现在公开截图里。怀疑泄露了，立刻到本站密钥管理里删掉重建。</p>
 </article>
 <article class="page" id="page-faq-通用报错速查"><h1>通用报错速查</h1>
 <p>先对着这张表自查，多数问题都是地址、分组、Key 三件事填错。</p>
@@ -831,12 +831,12 @@ web_search_request = true
 <tbody><tr>
 <td>401 Unauthorized</td>
 <td>Key 不对或没带上</td>
-<td>检查 Key 是否复制完整（前后别带空格）、是否用了已删除/禁用的令牌；用 CC Switch 的检查环境变量残留有没有覆盖配置</td>
+<td>检查 Key 是否复制完整（前后别带空格）、是否用了已删除/禁用的密钥；用 CC Switch 的检查环境变量残留有没有覆盖配置</td>
 </tr>
 <tr>
 <td>403 Forbidden</td>
 <td>没权限</td>
-<td>①令牌分组和模型对不上（调 GPT 模型要用 GPT 分组令牌，调 Claude 要用 Claude 分组）②余额不足 ③令牌被禁用/过期</td>
+<td>①密钥分组和模型对不上（调 GPT 模型要用 GPT 分组密钥，调 Claude 要用 Claude 分组）②余额不足 ③密钥被禁用/过期</td>
 </tr>
 <tr>
 <td>404 Not Found</td>
@@ -846,7 +846,7 @@ web_search_request = true
 <tr>
 <td>模型不存在 / model not found</td>
 <td>模型名不对或分组里没这个模型</td>
-<td>到模型广场复制准确模型名；确认它在你令牌的分组里（有的模型只在特定分组有）</td>
+<td>到模型广场复制准确模型名；确认它在你密钥的分组里（有的模型只在特定分组有）</td>
 </tr>
 <tr>
 <td>429 Too Many Requests</td>
@@ -861,7 +861,7 @@ web_search_request = true
 <tr>
 <td>Insufficient quota / 余额不足</td>
 <td>钱包没钱了</td>
-<td>到本站钱包充值；或检查令牌是否设了额度上限且已用满</td>
+<td>到本站钱包充值；或检查密钥是否设了额度上限且已用满</td>
 </tr>
 <tr>
 <td>一直转圈 / 超时</td>
@@ -869,7 +869,7 @@ web_search_request = true
 <td>先确认本机网络和代理设置；长任务本来就慢，等一等； consistently 超时就把工具彻底重启再试</td>
 </tr>
 </tbody></table>
-<p>自查都过了一遍还不行：把<strong>报错截图 + 你用的工具 + 令牌分组 + 大概时间</strong>发到 QQ 群，管理员按日志帮你对。</p>
+<p>自查都过了一遍还不行：把<strong>报错截图 + 你用的工具 + 密钥分组 + 大概时间</strong>发到 QQ 群，管理员按日志帮你对。</p>
 </article>
 <article class="page" id="page-tos-服务条款"><h1>服务条款</h1>
 <p>生效日期：2026-10-28</p>
@@ -937,7 +937,7 @@ web_search_request = true
 <p>本文件是《服务条款》的补充，约定各分组、各类调用的特别规则。与《服务条款》冲突时，以本文件为准。</p>
 <h2>一、计费口径</h2>
 <ol>
-<li>全部调用按 Token 用量计费，单价＝模型基础价 × 你令牌所在分组的倍率，以模型广场与使用日志的展示为准。</li>
+<li>全部调用按 Token 用量计费，单价＝模型基础价 × 你密钥所在分组的倍率，以模型广场与使用日志的展示为准。</li>
 <li>支持缓存的模型区分「缓存命中」与「缓存未命中」计价，命中部分价格更低；命中率取决于你的调用方式（如会话是否连续、系统提示是否稳定），平台不承诺固定命中率，分组说明中的缓存比例为经验参考值。</li>
 <li>客户端软件（Claude Code、Codex 等）自动发起的辅助调用（生成标题、压缩上下文、代码审查、子任务等）同样计费，属正常消费，详见对应常见问题页。</li>
 <li>预扣额度与实际消费有差额的，以结算后的使用日志记录为准。</li>
@@ -945,7 +945,7 @@ web_search_request = true
 <h2>二、Claude 分组</h2>
 <ol>
 <li>会话保持（粘性路由）默认开启：同一会话尽量走同一渠道以提高缓存命中；渠道故障时自动切换，切换后缓存可能短暂失效，属正常现象。</li>
-<li><strong>Claude-Max 分组禁止蒸馏</strong>：不得将该分组的模型输出用于训练或蒸馏其他模型，不得用于违规「破甲」用途；违反者封号且余额不退（与令牌分组说明一致）。</li>
+<li><strong>Claude-Max 分组禁止蒸馏</strong>：不得将该分组的模型输出用于训练或蒸馏其他模型，不得用于违规「破甲」用途；违反者封号且余额不退（与密钥分组说明一致）。</li>
 <li>标注为预览（preview）的模型稳定性不作保证，可能随时下线。</li>
 </ol>
 <h2>三、GPT 分组</h2>
