@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>哈吉米 API 使用文档</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif; color: #1f2328; background: #fff; }
+  header { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 14px; padding: 12px 20px; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom: 1px solid #e5e7eb; }
+  header .logo { font-weight: 700; font-size: 17px; }
+  header .sub { color: #6b7280; font-size: 13px; }
+  header a.home { margin-left: auto; color: #2563eb; text-decoration: none; font-size: 14px; }
+  .layout { display: flex; max-width: 1240px; margin: 0 auto; }
+  nav { width: 264px; flex: none; padding: 20px 14px 40px 20px; position: sticky; top: 53px; height: calc(100vh - 53px); overflow-y: auto; }
+  .nav-sec { font-size: 12px; font-weight: 700; color: #6b7280; letter-spacing: .06em; margin: 18px 8px 6px; }
+  .nav-sec:first-child { margin-top: 0; }
+  .nav-item { display: block; padding: 6px 8px; border-radius: 6px; color: #374151; text-decoration: none; font-size: 14px; line-height: 1.45; }
+  .nav-item:hover { background: #f3f4f6; }
+  .nav-item.active { background: #eff6ff; color: #1d4ed8; font-weight: 600; }
+  main { flex: 1; min-width: 0; padding: 26px 34px 80px; }
+  .page { display: none; max-width: 860px; }
+  .page.show { display: block; }
+  .page h1 { font-size: 28px; margin: 4px 0 18px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb; }
+  .page h2 { font-size: 21px; margin: 30px 0 12px; }
+  .page h3 { font-size: 17px; margin: 22px 0 8px; }
+  .page p, .page li { font-size: 15px; line-height: 1.75; }
+  .page a { color: #2563eb; }
+  .page code { background: #f3f4f6; padding: 1px 5px; border-radius: 4px; font-size: .92em; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .page pre { background: #0d1117; color: #e6edf3; padding: 14px 16px; border-radius: 8px; overflow-x: auto; }
+  .page pre code { background: none; padding: 0; color: inherit; font-size: 13px; line-height: 1.6; }
+  .page table { border-collapse: collapse; margin: 14px 0; width: 100%; font-size: 14px; display: block; overflow-x: auto; }
+  .page th, .page td { border: 1px solid #e5e7eb; padding: 7px 10px; text-align: left; line-height: 1.55; }
+  .page th { background: #f9fafb; }
+  .page blockquote { margin: 14px 0; padding: 8px 14px; border-left: 3px solid #f59e0b; background: #fffbeb; color: #57534e; }
+  .page blockquote p { margin: 4px 0; }
+  .menu-btn { display: none; border: 1px solid #e5e7eb; background: #fff; border-radius: 6px; padding: 5px 10px; font-size: 14px; cursor: pointer; }
+  @media (max-width: 860px) {
+    .menu-btn { display: block; }
+    .layout { flex-direction: column; }
+    nav { display: none; width: 100%; position: static; height: auto; border-bottom: 1px solid #e5e7eb; }
+    nav.open { display: block; }
+    main { padding: 18px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <button class="menu-btn" onclick="document.querySelector('nav').classList.toggle('open')">目录</button>
+  <div class="logo">哈吉米 API</div>
+  <div class="sub">使用文档</div>
+  <a class="home" href="https://hajimi.men">返回官网 →</a>
+</header>
+<div class="layout">
+  <nav><div class="nav-sec">首页</div>
+<a class="nav-item" data-slug="README" href="#README">哈吉米 API 使用文档</a>
+<div class="nav-sec">使用指南</div>
+<a class="nav-item" data-slug="guide-充值与计费说明" href="#guide-充值与计费说明">充值与计费说明</a>
+<a class="nav-item" data-slug="guide-模型广场说明" href="#guide-模型广场说明">模型广场使用说明</a>
+<a class="nav-item" data-slug="guide-状态与监控说明" href="#guide-状态与监控说明">服务状态与监控说明</a>
+<div class="nav-sec">CC Switch 配置</div>
+<a class="nav-item" data-slug="ccswitch-1-通用步骤" href="#ccswitch-1-通用步骤">CC Switch · 通用步骤（下载与安装）</a>
+<a class="nav-item" data-slug="ccswitch-2-claude-code" href="#ccswitch-2-claude-code">CC Switch · Claude Code 配置</a>
+<a class="nav-item" data-slug="ccswitch-3-codex" href="#ccswitch-3-codex">CC Switch · Codex 配置</a>
+<a class="nav-item" data-slug="ccswitch-4-claude-desktop" href="#ccswitch-4-claude-desktop">CC Switch · Claude Desktop 配置</a>
+<a class="nav-item" data-slug="ccswitch-5-用量查询" href="#ccswitch-5-用量查询">CC Switch · 用量查询配置</a>
+<a class="nav-item" data-slug="ccswitch-6-chatgpt" href="#ccswitch-6-chatgpt">ChatGPT 桌面版接入</a>
+<a class="nav-item" data-slug="ccswitch-7-cli" href="#ccswitch-7-cli">CC Switch CLI（命令行版，简版）</a>
+<div class="nav-sec">进阶客户端</div>
+<a class="nav-item" data-slug="advanced-opencode" href="#advanced-opencode">进阶客户端 · OpenCode 配置</a>
+<a class="nav-item" data-slug="advanced-aionui" href="#advanced-aionui">进阶客户端 · AionUI 配置</a>
+<a class="nav-item" data-slug="advanced-workbuddy" href="#advanced-workbuddy">进阶客户端 · WorkBuddy 配置</a>
+<a class="nav-item" data-slug="advanced-openclaw" href="#advanced-openclaw">进阶客户端 · OpenClaw 配置</a>
+<div class="nav-sec">常见问题</div>
+<a class="nav-item" data-slug="faq-claude-code" href="#faq-claude-code">Claude Code 常见问题</a>
+<a class="nav-item" data-slug="faq-codex" href="#faq-codex">Codex 常见问题</a>
+<a class="nav-item" data-slug="faq-cline" href="#faq-cline">在 Cline 等工具里使用（OpenAI 兼容接入）</a>
+<a class="nav-item" data-slug="faq-通用报错速查" href="#faq-通用报错速查">通用报错速查</a>
+<div class="nav-sec">声明与政策</div>
+<a class="nav-item" data-slug="tos-服务条款" href="#tos-服务条款">服务条款</a>
+<a class="nav-item" data-slug="tos-使用政策" href="#tos-使用政策">使用政策</a>
+<a class="nav-item" data-slug="tos-服务特定条款" href="#tos-服务特定条款">服务特定条款</a>
+<a class="nav-item" data-slug="tos-支持的国家和地区" href="#tos-支持的国家和地区">支持的国家和地区</a></nav>
+  <main><article class="page" id="page-README"><h1>哈吉米 API 使用文档</h1>
+<p>本站（哈吉米 API，<a href="https://hajimi.men%EF%BC%89%E7%9A%84%E6%8E%A5%E5%85%A5%E4%B8%8E%E9%85%8D%E7%BD%AE%E6%95%99%E7%A8%8B%E3%80%82%E7%85%A7%E7%9D%80%E5%81%9A%EF%BC%8C%E5%9F%BA%E6%9C%AC%E4%B8%8D%E4%BC%9A%E5%87%BA%E9%97%AE%E9%A2%98%EF%BC%9B%E5%81%9A%E4%B8%8D%E9%80%9A%E6%97%B6%EF%BC%8C%E6%8A%8A%E4%BD%A0%E5%8D%A1%E4%BD%8F%E7%9A%84%E6%AD%A5%E9%AA%A4%E5%92%8C%E6%8A%A5%E9%94%99%E6%88%AA%E5%9B%BE%E5%8F%91%E5%88%B0">https://hajimi.men）的接入与配置教程。照着做，基本不会出问题；做不通时，把你卡住的步骤和报错截图发到</a> QQ 群（群号见站内公告），管理员会看。</p>
+<h2>先记住两个地址</h2>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>控制台（注册、充值、建令牌、查用量）</td>
+<td><a href="https://hajimi.men">https://hajimi.men</a></td>
+</tr>
+<tr>
+<td>接口地址（填进各种工具里的）</td>
+<td>Claude 类工具填 <a href="https://hajimi.men">https://hajimi.men</a> ；OpenAI 兼容工具填 <a href="https://hajimi.men/v1">https://hajimi.men/v1</a></td>
+</tr>
+</tbody></table>
+<p>填错这两个地址是新手最常见的翻车点，各篇教程里还会再提醒。</p>
+<h2>令牌先选对分组</h2>
+<p>建令牌时要选分组，分组决定你能用哪些模型、按什么倍率扣费：</p>
+<ul>
+<li>用 Claude Code / Claude Desktop → 建 <strong>Claude 分组</strong>的令牌（速刷、正价池、Max 满血三档，按需选）</li>
+<li>用 Codex / ChatGPT → 建 <strong>GPT 分组</strong>的令牌（小杯、中杯、大杯三档）</li>
+<li>用国产模型 → 建 <strong>国模分组</strong>的令牌</li>
+</ul>
+<p>选错分组会出现没模型、403 之类的报错。各分组当前包含的模型和价格，以站内「模型广场」实时展示为准。</p>
+<h2>目录</h2>
+<p><strong>CC Switch 配置</strong>（推荐新手用它管理配置，不用手改文件）</p>
+<ol>
+<li><a href="#ccswitch-1-%E9%80%9A%E7%94%A8%E6%AD%A5%E9%AA%A4">通用步骤：下载与安装</a></li>
+<li><a href="#ccswitch-2-claude-code">Claude Code 配置</a></li>
+<li><a href="#ccswitch-3-codex">Codex 配置</a></li>
+<li><a href="#ccswitch-4-claude-desktop">Claude Desktop 配置</a></li>
+<li><a href="#ccswitch-5-%E7%94%A8%E9%87%8F%E6%9F%A5%E8%AF%A2">用量查询配置</a></li>
+<li><a href="#ccswitch-6-chatgpt">ChatGPT 桌面版接入</a></li>
+<li><a href="#ccswitch-7-cli">CC Switch CLI 命令行版（简版）</a></li>
+</ol>
+<p><strong>常见问题</strong></p>
+<ol>
+<li><a href="#faq-claude-code">Claude Code 常见问题</a></li>
+<li><a href="#faq-codex">Codex 常见问题</a></li>
+<li><a href="#faq-cline">在 Cline 等工具里使用（OpenAI 兼容接入）</a></li>
+<li><a href="#faq-%E9%80%9A%E7%94%A8%E6%8A%A5%E9%94%99%E9%80%9F%E6%9F%A5">通用报错速查</a></li>
+</ol>
+<p><strong>声明与政策</strong></p>
+<ol>
+<li><a href="#tos-%E6%9C%8D%E5%8A%A1%E6%9D%A1%E6%AC%BE">服务条款</a>（与站内注册同意的文本一致）</li>
+<li><a href="#tos-%E4%BD%BF%E7%94%A8%E6%94%BF%E7%AD%96">使用政策</a></li>
+<li><a href="#tos-%E6%9C%8D%E5%8A%A1%E7%89%B9%E5%AE%9A%E6%9D%A1%E6%AC%BE">服务特定条款</a></li>
+<li><a href="#tos-%E6%94%AF%E6%8C%81%E7%9A%84%E5%9B%BD%E5%AE%B6%E5%92%8C%E5%9C%B0%E5%8C%BA">支持的国家和地区</a></li>
+</ol>
+<p><strong>使用指南</strong></p>
+<ol>
+<li><a href="#guide-%E5%85%85%E5%80%BC%E4%B8%8E%E8%AE%A1%E8%B4%B9%E8%AF%B4%E6%98%8E">充值与计费说明</a></li>
+<li><a href="#guide-%E6%A8%A1%E5%9E%8B%E5%B9%BF%E5%9C%BA%E8%AF%B4%E6%98%8E">模型广场使用说明</a></li>
+<li><a href="#guide-%E7%8A%B6%E6%80%81%E4%B8%8E%E7%9B%91%E6%8E%A7%E8%AF%B4%E6%98%8E">服务状态与监控说明</a></li>
+</ol>
+<p><strong>进阶客户端</strong></p>
+<ol>
+<li><a href="#advanced-opencode">OpenCode 配置</a></li>
+<li><a href="#advanced-aionui">AionUI 配置</a></li>
+<li><a href="#advanced-workbuddy">WorkBuddy 配置</a></li>
+<li><a href="#advanced-openclaw">OpenClaw 配置</a></li>
+</ol>
+<blockquote>
+<p>文档中标注的位置是配图占位，内容以文字步骤为准。</p>
+</blockquote>
+</article>
+<article class="page" id="page-guide-充值与计费说明"><h1>充值与计费说明</h1>
+<h2>余额是什么</h2>
+<p>本站余额以美元（$）计价显示。调用模型时按「模型基础价 × 令牌分组倍率」扣费，每笔消费都能在控制台「使用日志」里查到（模型、Token 数、金额、时间）。</p>
+<h2>怎么充值</h2>
+<p>登录后进入左侧「钱包」：</p>
+<ol>
+<li><strong>在线充值</strong>（以钱包页实际开放的为准）：选预设金额或输自定义金额，选支付宝/微信付款，支付成功后余额自动到账</li>
+<li><strong>兑换码充值</strong>：有兑换码的，在钱包页输入兑换码即可到账（活动、群福利发的都是这种）</li>
+</ol>
+<p>充值比例与可付金额以钱包页实时显示为准；支付时如果没弹出支付页面，先关掉代理再重试。</p>
+<h2>免费额度</h2>
+<ul>
+<li><strong>每日签到</strong>：个人中心签到可领小额额度（每日一次，金额随机）</li>
+<li><strong>邀请奖励</strong>：通过邀请链接注册的新人完成注册后，邀请双方按站内规则得奖励额度（以钱包页/公告为准）</li>
+</ul>
+<h2>省钱提示</h2>
+<ul>
+<li>余额低于你设的提醒阈值时，系统会发邮件提醒，别等到调用一半断粮</li>
+<li>同一模型在不同分组价格不同：不赶时间用便宜分组，干活求稳用高档分组</li>
+<li>Claude 类模型用好缓存（会话别频繁新开、系统提示保持稳定）能明显降费，细则见《服务特定条款》</li>
+</ul>
+</article>
+<article class="page" id="page-guide-模型广场说明"><h1>模型广场使用说明</h1>
+<p>模型广场是本站的价目表：每个分组有哪些模型、多少钱、速度怎么样，都在这看。配任何工具之前，先来这里确认两件事——<strong>你要的模型在哪个分组、准确的模型名是什么</strong>，能省掉一半的&quot;模型不存在&quot;报错。</p>
+<p>入口：控制台右上角「模型广场」，登录后可见。</p>
+<h2>怎么看</h2>
+<ul>
+<li><strong>左侧「可用令牌分组」</strong>：点某个分组，右侧只剩这个分组能用的模型。分组名后面带的就是倍率（如 ×0.25）</li>
+<li><strong>模型卡片</strong>：右上角小字是所属分组；卡片里有模型 ID（配置工具时原样复制这个）、输入 / 输出 / 缓存读取价格；底部是平台实测的吞吐、延迟和成功率（带采样时间，挑分组时可以参考）</li>
+<li><strong>左侧「端点类型」</strong>：按请求协议筛选（anthropic、openai 等）——你的工具走哪种协议就筛哪种</li>
+<li><strong>右上角「表格视图」</strong>：一次看全所有模型的价格，适合比价</li>
+</ul>
+<h2>倍率是什么意思</h2>
+<p>实际扣费 ＝ 模型基础价 × 分组倍率：</p>
+<ul>
+<li>倍率小于 1 是折扣：0.25 就是官方价的 2.5 折</li>
+<li>倍率大于 1 是加价档（如满血分组），买的是更好的池子和稳定性</li>
+</ul>
+<p>同一个模型可能出现在多个分组里，价不同、池子不同：便宜档适合日常跑量，高档适合长任务和求稳，按活选，别只盯最便宜的。</p>
+<h2>和令牌的关系</h2>
+<p>建令牌时选的分组，决定这个令牌能调哪些模型、按哪档倍率扣费。所以顺序是：<strong>先在模型广场选好模型和分组 → 再去令牌管理建对应分组的令牌 → 最后把令牌配进工具</strong>。</p>
+</article>
+<article class="page" id="page-guide-状态与监控说明"><h1>服务状态与监控说明</h1>
+<p>想知道&quot;现在能不能用、哪个分组快&quot;，看这三个地方，不用问人：</p>
+<h2>1. 控制台概览 · API 信息</h2>
+<p>登录后的概览页有 API 信息区，显示接口地址和实时延迟检测。延迟明显变大或检测不通，说明线路或上游在波动，可以先换个分组试，或等几分钟再看。</p>
+<h2>2. 模型广场 · 模型卡片</h2>
+<p>每个模型卡片底部有平台实测的<strong>吞吐、延迟、成功率</strong>和采样时间。挑分组时除了看价格，也看成功率：某个分组成功率明显掉了，先避开它，用同模型的其他分组。</p>
+<h2>3. 你的使用日志</h2>
+<p>调用失败先查自己的「使用日志」：失败记录的时间、模型、分组都在，对照<a href="#faq-%E9%80%9A%E7%94%A8%E6%8A%A5%E9%94%99%E9%80%9F%E6%9F%A5">通用报错速查</a>自查原因。日志里查不到的失败，多半是请求根本没到本站（本机网络/工具配置问题）。</p>
+<h2>维护与故障</h2>
+<p>计划维护和突发故障会在站内公告和 QQ 群同步。出现大面积报错时先看公告，没公告再带截图到群里问。</p>
+</article>
+<article class="page" id="page-ccswitch-1-通用步骤"><h1>CC Switch · 通用步骤（下载与安装）</h1>
+<p>CC Switch 是一个开源的桌面小工具（项目地址：<a href="https://github.com/farion1231/cc-switch">https://github.com/farion1231/cc-switch</a> ），专门用来管理 Claude Code、Codex 等命令行工具的接口配置：图形界面里加好供应商，点一下就能切换，不用手动改配置文件。</p>
+<p>本站没有在 CC Switch 里内置模板，但本站令牌页提供「一键导入」，效果一样，还更省事；手动添加的方法各分篇里也都写了。</p>
+<h2>下载安装</h2>
+<p>到 CC Switch 的 GitHub Releases 页面下载对应系统的安装包：</p>
+<p><strong>Windows</strong></p>
+<ul>
+<li>普通电脑下载 <code>CC-Switch-v版本号-Windows.msi</code> 安装包</li>
+<li>不想安装就下免安装版 <code>CC-Switch-v版本号-Windows-Portable.zip</code></li>
+<li>ARM 机器选文件名带 <code>arm64</code> 的</li>
+</ul>
+<p><strong>macOS</strong></p>
+<ul>
+<li>推荐用 Homebrew 安装：终端运行 <code>brew install --cask cc-switch</code>，以后升级用 <code>brew upgrade --cask cc-switch</code></li>
+<li>也可以直接下 <code>CC-Switch-v版本号-macOS.dmg</code>；安装包是通用版，Apple 芯片和 Intel 芯片都能用，已签名公证，可直接打开</li>
+</ul>
+<p><strong>Linux</strong></p>
+<ul>
+<li>Debian/Ubuntu：到 Releases 页面确认最新版本号，下 <code>CC-Switch-v版本号-Linux-x86_64.deb</code>（ARM 机器换 <code>arm64</code>），用 <code>sudo dpkg -i 文件名.deb</code> 安装</li>
+<li>Fedora 等 RPM 系把 <code>.deb</code> 换成 <code>.rpm</code>；其他发行版可下 <code>.AppImage</code> 直接运行</li>
+<li>Arch Linux：<code>paru -S cc-switch-bin</code></li>
+</ul>
+<h2>系统要求</h2>
+<ul>
+<li>Windows：Windows 10 及以上</li>
+<li>macOS：macOS 12（Monterey）及以上</li>
+<li>Linux：x86_64 或 ARM64，Ubuntu 22.04+、Debian 12+、较新的 Fedora 等</li>
+</ul>
+<h2>开始配置之前</h2>
+<ol>
+<li>先在本站（<a href="https://hajimi.men%EF%BC%89%E6%B3%A8%E5%86%8C%E8%B4%A6%E5%8F%B7%E3%80%81%E5%85%85%E5%80%BC%E3%80%81%E5%BB%BA%E5%A5%BD%E4%BB%A4%E7%89%8C%E2%80%94%E2%80%94%E7%94%A8%E5%93%AA%E4%B8%AA%E5%B7%A5%E5%85%B7%EF%BC%8C%E5%B0%B1%E5%BB%BA%E5%93%AA%E4%B8%AA%E5%88%86%E7%BB%84%E7%9A%84%E4%BB%A4%E7%89%8C%EF%BC%88%E8%A7%81%E6%96%87%E6%A1%A3%E9%A6%96%E9%A1%B5%E7%9A%84%E5%88%86%E7%BB%84%E8%AF%B4%E6%98%8E%EF%BC%89">https://hajimi.men）注册账号、充值、建好令牌——用哪个工具，就建哪个分组的令牌（见文档首页的分组说明）</a></li>
+<li>确认你的 Claude Code / Codex 命令行本身能正常启动（装 Node.js、装 CLI 的步骤见各工具官方说明）</li>
+<li>然后按你用的工具看对应分篇：</li>
+</ol>
+<ul>
+<li><a href="#ccswitch-2-claude-code">Claude Code 配置</a></li>
+<li><a href="#ccswitch-3-codex">Codex 配置</a></li>
+<li><a href="#ccswitch-4-claude-desktop">Claude Desktop 配置</a></li>
+</ul>
+</article>
+<article class="page" id="page-ccswitch-2-claude-code"><h1>CC Switch · Claude Code 配置</h1>
+<p>前提：已装好 CC Switch 和 Claude Code，并且在本站建好了 <strong>Claude 分组</strong>的令牌。两种配法，任选其一。</p>
+<h2>方法一：一键导入（推荐）</h2>
+<ol>
+<li>登录本站，进入「令牌管理」，找到你建好的 Claude 分组令牌</li>
+<li>点令牌旁的「一键导入」，在客户端列表里选 <strong>CC Switch</strong></li>
+<li>浏览器会唤起 CC Switch 并把地址和密钥自动填好，确认导入</li>
+<li>在 CC Switch 左侧选 Claude Code，把刚导入的供应商点「切换」，卡片显示「使用中」</li>
+<li>终端运行 <code>claude</code>，随便发一句话，能收到回复即成功</li>
+</ol>
+<h2>方法二：手动添加</h2>
+<ol>
+<li>打开 CC Switch，左侧栏选 <strong>Claude Code</strong>。页面上方有「直连 / 路由 / 聚合」三个标签，全程用 <strong>直连</strong></li>
+<li>点右上角「添加供应商」，选「自定义」手动填写：</li>
+</ol>
+<ul>
+<li>名称：哈吉米 API（随便起，认得出就行）</li>
+<li>请求地址：<code>https://hajimi.men</code></li>
+<li>API Key：粘贴你的 Claude 分组令牌</li>
+</ul>
+<ol start="3">
+<li>点「添加」保存</li>
+<li>回到供应商列表，点这张卡片右侧的切换图标，显示「使用中」即切换完成</li>
+<li>终端运行 <code>claude</code> 测试对话</li>
+</ol>
+<h2>最容易填错的地方</h2>
+<ul>
+<li><strong>请求地址不要带 /v1</strong>。Claude Code 填 <code>https://hajimi.men</code>；带 /v1 的地址是给 Codex 那类 OpenAI 兼容工具用的，填错了会直接报错</li>
+<li><strong>也不要填成带路径的控制台页面地址</strong>，就填上面这一个根地址</li>
+<li>令牌要用 <strong>Claude 分组</strong>的。用 GPT 分组的令牌配 Claude Code，会出现没模型或 403</li>
+</ul>
+</article>
+<article class="page" id="page-ccswitch-3-codex"><h1>CC Switch · Codex 配置</h1>
+<p>前提：已装好 CC Switch 和 Codex，并且在本站建好了 <strong>GPT 分组</strong>的令牌。两种配法，任选其一。</p>
+<h2>方法一：一键导入（推荐）</h2>
+<ol>
+<li>登录本站，进入「令牌管理」，找到你建好的 GPT 分组令牌</li>
+<li>点令牌旁的「一键导入」，在客户端列表里选 <strong>CC Switch</strong></li>
+<li>浏览器唤起 CC Switch 自动填好配置后，确认导入；模型列表按下面方法二第 3 步检查一遍（自动带入的模型可能不全）</li>
+<li>在 CC Switch 左侧选 Codex，把供应商点「切换」，显示「使用中」</li>
+<li>彻底重启 Codex（见文末注意），终端运行 <code>codex</code> 测试对话</li>
+</ol>
+<h2>方法二：手动添加</h2>
+<ol>
+<li>打开 CC Switch，左侧栏选 <strong>Codex</strong>，上方标签保持 <strong>直连</strong></li>
+<li>点右上角「添加供应商」，选「自定义」填写：<ul>
+<li>名称：哈吉米 API</li>
+<li>API Key：粘贴你的 GPT 分组令牌</li>
+<li>API 请求地址：<code>https://hajimi.men/v1</code></li>
+</ul>
+</li>
+<li><strong>模型列表要手动加</strong>（点「获取模型列表」拿不到，直接点「+ 手动添加」补两行）：<ul>
+<li>第一行：你要用的主模型，显示名和请求模型都填同一个模型 ID，例如 <code>gpt-5.6-sol</code>（可用模型以本站模型广场 GPT 分组实时展示为准）</li>
+<li>第二行：两列都填 <code>codex-auto-review</code></li>
+<li>「自动审批模型」选 <strong>Codex 默认 (codex-auto-review)</strong>，和第二行对上</li>
+</ul>
+</li>
+<li>点「添加」保存，回到列表点卡片右侧切换图标，显示「使用中」、顶部提示「直连生效中」即完成</li>
+</ol>
+<h2>最容易填错的地方</h2>
+<ul>
+<li><strong>请求地址必须带 /v1</strong>：<code>https://hajimi.men/v1</code>。这点和 Claude Code 正好相反（那边不带），搞混是 Codex 配不通的头号原因</li>
+<li>如果自动审批时报错，把「自动审批模型」改成你的主模型再试</li>
+<li><strong>切换供应商后必须彻底重启 Codex</strong>：切换前开着的 Codex 还在用旧配置。终端会话退出重开；桌面版要完全退出（macOS 用 ⌘Q，只关窗口不算）再打开；编辑器插件要重开窗口</li>
+</ul>
+</article>
+<article class="page" id="page-ccswitch-4-claude-desktop"><h1>CC Switch · Claude Desktop 配置</h1>
+<p>先分清：Claude Desktop（桌面客户端）和 Claude Code（命令行/插件）在 CC Switch 里是<strong>两个独立入口</strong>，配置互不相通，要分别配。这一页说的是桌面客户端。</p>
+<p>前提：已装 Claude Desktop 和 CC Switch，在本站建好了 <strong>Claude 分组</strong>的令牌。</p>
+<h2>步骤</h2>
+<ol>
+<li>打开 CC Switch，在左侧应用切换器中选 <strong>Claude Desktop</strong> 入口</li>
+<li>点右上角「添加供应商」，选「自定义」填写：<ul>
+<li>名称：哈吉米 API</li>
+<li>API Key：粘贴你的 Claude 分组令牌</li>
+<li>请求地址：<code>https://hajimi.men</code>（结尾不要带斜杠，更不要带 /v1）</li>
+<li>接入方式：保持 <strong>直连</strong></li>
+</ul>
+</li>
+<li>填模型列表，两种方式任选：<ul>
+<li>点「获取模型列表」自动拉取，拉到就不用管</li>
+<li>拉不到就点「添加模型」，到本站模型广场复制你要用的模型名粘进来；模型支持 1M 上下文的，把右侧「1M」勾上</li>
+</ul>
+</li>
+<li>点「添加」。回到列表如果这家还没被选中，点卡片右侧切换图标选中它</li>
+<li><strong>完全退出 Claude Desktop 再重新打开</strong>（它只在启动时读配置，只关窗口不生效），随便发一条消息测试</li>
+</ol>
+<h2>注意事项</h2>
+<ul>
+<li>启动后顶部可能弹出一条网关（Gateway）登录告警，<strong>无视它</strong>，能正常收到回复就是配好了。判断标准只有一个：能不能对话</li>
+<li>配置由 CC Switch 写入，不要手动改 Claude Desktop 的配置文件，下次切换会被覆盖</li>
+<li>想恢复官方登录：在供应商列表里切回「Claude Desktop Official」即可，不需要 Key</li>
+</ul>
+</article>
+<article class="page" id="page-ccswitch-5-用量查询"><h1>CC Switch · 用量查询配置</h1>
+<p>配好之后，CC Switch 的供应商卡片上能直接显示本站余额，不用每次开网页查。</p>
+<p>注意：用量查询用的<strong>不是</strong>配供应商时填的 API Key，而是本站的「系统访问令牌 + 用户 ID」，要单独生成、单独填。</p>
+<h2>步骤</h2>
+<ol>
+<li>打开 CC Switch，在供应商卡片右侧点「…」菜单，选「配置用量查询」（Claude Code 和 Codex 面板的操作一样）</li>
+<li>打开「启用用量查询」，预设模板选 <strong>NewAPI</strong></li>
+<li>填三项：<ul>
+<li>请求地址：<code>https://hajimi.men</code></li>
+<li>访问令牌：登录本站，在「个人设置」里生成<strong>系统访问令牌</strong>，粘贴进来</li>
+<li>用户 ID：个人设置页顶部显示的用户 ID，照填</li>
+</ul>
+</li>
+<li>超时时间保持 10 秒，自动查询间隔保持 5 分钟（填 0 表示不自动查），下面的提取器代码由模板自动生成，不用改</li>
+<li>点「保存配置」，回到供应商列表，卡片上就会出现余额</li>
+</ol>
+<h2>最容易填错的地方</h2>
+<p>这里的<strong>请求地址填控制台地址 <code>https://hajimi.men</code></strong>，和配供应商时填的接口地址不是一回事，别互相照抄：</p>
+<ul>
+<li>供应商（Claude Code）：<code>https://hajimi.men</code></li>
+<li>供应商（Codex）：<code>https://hajimi.men/v1</code></li>
+<li>用量查询：<code>https://hajimi.men</code>（就是控制台本身）</li>
+</ul>
+<p>三项凭证都留空的话，CC Switch 会退回用供应商的地址和 Key 去查，余额取不到——所以三项都要自己填。</p>
+</article>
+<article class="page" id="page-ccswitch-6-chatgpt"><h1>ChatGPT 桌面版接入</h1>
+<p>ChatGPT 桌面版可以复用 Codex 的供应商配置。先按 <a href="#ccswitch-3-codex">Codex 配置</a> 把 Codex 配好并切换到哈吉米，再看这一页。</p>
+<h2>直接复用（多数情况）</h2>
+<ol>
+<li>确认 Codex 已通过 CC Switch 切到哈吉米，且终端里能正常对话</li>
+<li>安装并打开 ChatGPT 桌面版，它读到现有的 Codex 配置后即可直接使用，发一条消息测试</li>
+</ol>
+<h2>首次启动还出现登录页</h2>
+<ol>
+<li>先完全关闭 ChatGPT，确认 Codex 配置有效，再重新打开</li>
+<li>仍出现登录页时，点「使用其他方式登录」</li>
+<li>把本站 <strong>GPT 分组令牌</strong>粘贴到「OpenAI API 密钥」，点「继续」</li>
+<li>进入后发一条测试消息，能回复即生效</li>
+</ol>
+<h2>切换供应商后没生效</h2>
+<p>在 CC Switch 里改过 Codex 配置后，ChatGPT 必须<strong>完全退出再重开</strong>（只关窗口它还留在后台用旧配置）：菜单选「文件 → Quit ChatGPT」，或按 Ctrl+Q（macOS 用 ⌘Q），再重新启动。</p>
+</article>
+<article class="page" id="page-ccswitch-7-cli"><h1>CC Switch CLI（命令行版，简版）</h1>
+<p>适合服务器、SSH、纯终端和自动化场景。图形界面够用的人看前面几篇即可。</p>
+<p>CC Switch CLI 是独立项目（<a href="https://github.com/SaladDay/cc-switch-cli">https://github.com/SaladDay/cc-switch-cli</a> ），功能与桌面版对应：管理 Claude Code、Codex、OpenCode 等工具的供应商配置，带完整命令和终端界面（TUI）两种用法。</p>
+<h2>安装</h2>
+<p>macOS / Linux 一键脚本：</p>
+<pre><code class="language-bash">curl -fsSL https://github.com/SaladDay/cc-switch-cli/releases/latest/download/install.sh | bash
+</code></pre>
+<p>默认装到 <code>~/.local/bin</code>，找不到命令时确认它在 PATH 里。Windows 到其 GitHub Releases 下载 <code>cc-switch-cli-windows-x64.zip</code>，解压后把 <code>cc-switch.exe</code> 放进 PATH 目录。</p>
+<h2>使用</h2>
+<pre><code class="language-bash">cc-switch                                  # 进入 TUI 界面（首次配置推荐）
+cc-switch --app claude                     # 直接进 Claude Code 的配置界面
+cc-switch --app codex                      # 直接进 Codex 的配置界面
+cc-switch provider list                    # 查看供应商列表（默认 Claude）
+cc-switch provider current                 # 查看当前供应商
+cc-switch provider switch &lt;id&gt;             # 切换供应商
+cc-switch env tools                        # 检查本地 CLI 是否安装
+cc-switch env check                        # 检查环境变量冲突
+cc-switch update                           # 更新自身
+</code></pre>
+<p>管理非 Claude 的应用时，用全局参数 <code>--app codex</code> 等指定。</p>
+<h2>配置要点</h2>
+<ul>
+<li>目标 CLI 先运行一次（如 <code>claude --help</code>）让它生成自己的配置目录，再切换供应商</li>
+<li>供应商选「自定义」添加：名称随意，Claude Code 的请求地址填 <code>https://hajimi.men</code>，Codex 填 <code>https://hajimi.men/v1</code>，API Key 用本站对应分组的令牌</li>
+<li>切换后没生效，先查环境变量：如果系统里设了 <code>ANTHROPIC_API_KEY</code>、<code>OPENAI_API_KEY</code> 等变量，工具会优先读变量、盖掉这里的配置，用 <code>cc-switch env check</code> 能查出来</li>
+</ul>
+</article>
+<article class="page" id="page-advanced-opencode"><h1>进阶客户端 · OpenCode 配置</h1>
+<p>OpenCode 是开源的 AI 编程助手，能在终端、IDE、桌面端用，支持多家模型提供商。用 CC Switch 配置最省事。</p>
+<h2>安装</h2>
+<p>终端全局安装：</p>
+<pre><code class="language-bash">npm install -g opencode-ai
+</code></pre>
+<p>装完运行 <code>opencode</code>，能打开界面即安装成功。</p>
+<h2>用 CC Switch 添加本站</h2>
+<ol>
+<li>打开 CC Switch，上方应用切到 <strong>OpenCode</strong>，点「添加供应商」，选「自定义」</li>
+<li>按用的模型填：<ul>
+<li>供应商标识：<code>hajimi</code>（随意，认得出即可）</li>
+<li>接口格式：用 Claude 模型选 <strong>Anthropic</strong>；用 GPT 模型选 <strong>OpenAI</strong></li>
+<li>API Key：粘贴对应分组的令牌（Claude 模型用 Claude 分组，GPT 模型用 GPT 分组）</li>
+<li>接口地址：Claude 格式填 <code>https://hajimi.men</code>；OpenAI 格式填 <code>https://hajimi.men/v1</code></li>
+</ul>
+</li>
+<li>额外选项里加一组键值：<code>{&quot;setCacheKey&quot;: true}</code>（保缓存命中，省钱）</li>
+<li>模型配置里填你要用的模型：模型 ID 和显示名称都填模型广场里该分组的准确模型名，可加多个</li>
+<li>点「添加」，在渠道列表里启用刚加的这家</li>
+</ol>
+<h2>验证</h2>
+<p>终端运行 <code>opencode</code>，输入 <code>/models</code>，能看到刚配的渠道和模型即成功，选一个开始对话测试。</p>
+<blockquote>
+<p>找不到模型或报 403：多半是令牌分组和模型对不上——回模型广场确认该模型在你令牌的分组里。</p>
+</blockquote>
+</article>
+<article class="page" id="page-advanced-aionui"><h1>进阶客户端 · AionUI 配置</h1>
+<p>AionUI 是给命令行 AI 工具套的图形界面（开源免费，项目地址：<a href="https://github.com/iOfficeAI/AionUi">https://github.com/iOfficeAI/AionUi</a> ）：自动识别本地的 Claude Code、Codex 等工具，多会话并行、文件预览、本地存数据，适合不想碰终端的人。</p>
+<h2>下载安装</h2>
+<ul>
+<li>Windows / Linux：到其 GitHub Releases 下载对应安装包（Windows 用 .exe，Linux 用 .deb 或 .AppImage）</li>
+<li>macOS：<code>brew install aionui</code>，或到 Releases 下载 .dmg（Intel 与 Apple 芯片通用）</li>
+</ul>
+<h2>配置本站模型</h2>
+<p>先在本站建好令牌（用哪家模型建哪个分组），然后：</p>
+<ol>
+<li>打开 AionUI，进入「设置 → LLM 配置 → 添加模型」</li>
+<li>平台选 <strong>自定义</strong></li>
+<li>按下表填（分模型二选一）：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>用哪类模型</th>
+<th>令牌分组</th>
+<th>API 请求地址</th>
+<th>模型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Claude</td>
+<td>Claude 分组</td>
+<td><a href="https://hajimi.men">https://hajimi.men</a></td>
+<td>模型广场 Claude 分组的模型名</td>
+</tr>
+<tr>
+<td>GPT</td>
+<td>GPT 分组</td>
+<td><a href="https://hajimi.men/v1">https://hajimi.men/v1</a></td>
+<td>模型广场 GPT 分组的模型名</td>
+</tr>
+<tr>
+<td>国产模型</td>
+<td>国模分组</td>
+<td><a href="https://hajimi.men/v1">https://hajimi.men/v1</a></td>
+<td>模型广场国模分组的模型名</td>
+</tr>
+</tbody></table>
+<ol start="4">
+<li>API Key 粘贴对应令牌，保存</li>
+<li>回主界面，在模型选择里选刚配好的模型开始用</li>
+</ol>
+<blockquote>
+<p>本站暂未上架 Gemini 模型，AionUI 里的 Gemini 入口先不用管。</p>
+</blockquote>
+</article>
+<article class="page" id="page-advanced-workbuddy"><h1>进阶客户端 · WorkBuddy 配置</h1>
+<p>WorkBuddy 是腾讯出品的 AI 办公工作台（自然语言下任务，AI 自己拆步骤、调工具，交付文档/表格/PPT 等成果），支持在界面里添加第三方模型。把本站接进去等于给它换一个更便宜的模型来源。</p>
+<h2>准备</h2>
+<ol>
+<li>安装并登录 WorkBuddy</li>
+<li>在本站建好令牌（用哪个模型就建哪个分组），记下要用的准确模型名（到模型广场里对）</li>
+<li>注意：<strong>模型名必须和该分组里的模型 ID 完全一致</strong>，填错会报模型不存在。Key 不要截图外发，录屏求助前先遮挡</li>
+</ol>
+<h2>步骤</h2>
+<ol>
+<li>WorkBuddy 主界面点左下角账户区域展开菜单，点「设置」</li>
+<li>左侧导航选「模型」，在自定义模型区域点右上角「添加模型」</li>
+<li>「提供商」列表展开，在「其他」分类里选「自定义 / Custom」</li>
+<li>填写：<ul>
+<li>接口地址：<code>https://hajimi.men/v1</code></li>
+<li>API Key：粘贴你的令牌</li>
+<li>模型名称：令牌分组下的模型 ID（如 Claude 分组的某个模型、国模分组的某个模型）</li>
+<li>高级配置：按所选模型实际能力勾选（支持工具调用、思考模式的就勾上，其余保持默认）</li>
+</ul>
+</li>
+<li>点右下角「保存」（配置会写进本地 <code>~/.workbuddy/models.json</code>）</li>
+<li>回到任务对话界面，点输入框旁的模型选择器，选刚配的模型，发一条消息，能正常回复即接入成功</li>
+</ol>
+</article>
+<article class="page" id="page-advanced-openclaw"><h1>进阶客户端 · OpenClaw 配置</h1>
+<p>OpenClaw 是跑在服务器/Mac 上的个人 AI 助手网关（接 Telegram 等聊天软件使唤它干活）。这一页讲怎么把它的模型来源换成本站。适合 Linux 云服务器和 macOS 用户。</p>
+<h2>安装与初始化</h2>
+<p>终端运行官方安装脚本：</p>
+<pre><code class="language-bash">curl -fsSL https://openclaw.ai/install.sh | bash
+</code></pre>
+<p>安装向导里：选 QuickStart；供应商一步先选 <strong>Skip for now</strong> 跳过（装完再手动配本站）；其余选项（聊天适配器、Skills、Hooks）按你自己的需要选。</p>
+<h2>配置本站为模型供应商</h2>
+<p>编辑 <code>~/.openclaw/openclaw.json</code>，在 <code>models.providers</code> 里加一家（用 Claude 模型为例）：</p>
+<pre><code class="language-json">{
+  &quot;models&quot;: {
+    &quot;providers&quot;: {
+      &quot;hajimi&quot;: {
+        &quot;baseUrl&quot;: &quot;https://hajimi.men&quot;,
+        &quot;apiKey&quot;: &quot;粘贴你的Claude分组令牌&quot;,
+        &quot;api&quot;: &quot;anthropic-messages&quot;,
+        &quot;models&quot;: [
+          { &quot;id&quot;: &quot;模型广场里Claude分组的模型名&quot;, &quot;name&quot;: &quot;显示名随意&quot; }
+        ]
+      }
+    }
+  }
+}
+</code></pre>
+<p>要点：</p>
+<ul>
+<li>用 GPT 或国产模型时，把 <code>api</code> 改为 <code>openai-completions</code>，<code>baseUrl</code> 改为 <code>https://hajimi.men/v1</code>，令牌换成对应分组的</li>
+<li>模型 <code>id</code> 必须和模型广场里该分组的模型名完全一致</li>
+<li>在配置里把默认模型设为 <code>hajimi/你的模型名</code>（按 OpenClaw 的模型引用格式）</li>
+</ul>
+<p>改完重启网关并测试：</p>
+<pre><code class="language-bash">openclaw gateway restart
+openclaw tui
+</code></pre>
+<p>TUI 里能正常对话即成功（<code>/quit</code> 退出）。浏览器管理界面用 <code>openclaw dashboard</code> 给出的地址打开。</p>
+<h2>常见坑</h2>
+<ul>
+<li>报模型不存在：模型 id 与广场不一致，或令牌分组不对</li>
+<li>改了配置没生效：没重启 gateway</li>
+<li>服务器上跑还想从外网开管理界面：自己用反向代理加 HTTPS，并按 OpenClaw 官方说明处理网关鉴权，不要裸奔暴露端口</li>
+</ul>
+</article>
+<article class="page" id="page-faq-claude-code"><h1>Claude Code 常见问题</h1>
+<h2>明明选的是贵的模型，账单里为什么会出现别的便宜模型</h2>
+<p>正常现象，不是配错了，也不是被多扣钱。</p>
+<p>Claude Code 会在后台自己干一些小活：给对话起标题（历史记录里显示的那行字）、把太长的聊天记录压缩、派生子任务（Subagent）单独处理一小块工作。干这些小活时它会自己换一个便宜快的模型，不用你选的那个。所以使用日志里多出一些别的模型记录，是它自己在干活。</p>
+<ul>
+<li>这类钱一般很小（几分到几毛），不用管</li>
+<li>如果单笔大得反常（好几块以上），带上时间到来本站「使用日志」里对一下那笔的模型和金额，对不上就到 QQ 群找管理员</li>
+<li>子任务用哪个模型取决于子任务自己的配置，和主对话选的模型是两回事；<code>/fast</code> 只是同模型的更快输出模式，不涉及换模型</li>
+</ul>
+<h2>Claude Desktop 新建对话时为什么会自动调用一次模型</h2>
+<p>同样正常：新建对话发出第一条消息后，它会自动用一个小模型给这个对话生成标题（左侧对话列表里显示的那行字），关不掉，费用极小。日志里看到莫名的小额调用，多半就是它，别怀疑账号被盗。</p>
+<h2>在 VS Code 的 Claude Code 插件里怎么用</h2>
+<p>先保证命令行版 Claude Code 已按教程配好能用。然后给插件补一个配置文件：</p>
+<ul>
+<li>Windows：按 Win+R 输入 <code>%userprofile%\.claude</code> 回车，打开该目录</li>
+<li>macOS：在访达按 Command+Shift+G，输入 <code>~/.claude</code> 回车</li>
+</ul>
+<p>目录里如果没有 <code>config.json</code> 就手动新建，写入下面内容保存，再重启 VS Code：</p>
+<pre><code class="language-json">{
+  &quot;primaryApiKey&quot;: &quot;hajimi&quot;
+}
+</code></pre>
+<p>（值填任意非空字符串即可，这里只是让插件走命令行版的配置。）</p>
+<h2>常用命令</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>claude</code></td>
+<td>在当前目录启动对话</td>
+</tr>
+<tr>
+<td><code>claude &quot;解释这个项目&quot;</code></td>
+<td>启动并带上初始问题</td>
+</tr>
+<tr>
+<td><code>claude -p &quot;解释这个函数&quot;</code></td>
+<td>一次性问答，输出完退出，适合脚本调用</td>
+</tr>
+<tr>
+<td><code>cat logs.txt | claude -p &quot;帮我总结错误&quot;</code></td>
+<td>把文件/命令输出喂给它分析</td>
+</tr>
+<tr>
+<td><code>claude -c</code></td>
+<td>继续当前目录最近一次会话</td>
+</tr>
+<tr>
+<td><code>claude -r &quot;会话ID&quot; &quot;继续&quot;</code></td>
+<td>恢复指定会话</td>
+</tr>
+<tr>
+<td><code>claude --model sonnet</code></td>
+<td>指定本次会话模型</td>
+</tr>
+<tr>
+<td><code>claude --add-dir ../apps</code></td>
+<td>额外允许访问的代码目录</td>
+</tr>
+<tr>
+<td><code>claude mcp</code></td>
+<td>管理 MCP 服务器</td>
+</tr>
+<tr>
+<td><code>claude update</code></td>
+<td>更新 Claude Code</td>
+</tr>
+<tr>
+<td><code>claude --verbose</code></td>
+<td>详细日志模式，排错用</td>
+</tr>
+<tr>
+<td><code>claude --dangerously-skip-permissions</code></td>
+<td>跳过权限确认自动执行（高风险，仅在完全信任的环境用）</td>
+</tr>
+</tbody></table>
+<h2>报错 Unable to connect to Anthropic services</h2>
+<p>首次配置常见：Claude Code 还没完成它的初次确认流程。按系统运行下面命令，给配置文件打上&quot;已完成引导&quot;标记，然后重启 Claude Code。</p>
+<p>Windows（命令行里运行 PowerShell 命令）：</p>
+<pre><code class="language-powershell">powershell -Command &quot;$f=&#39;%USERPROFILE%\.claude.json&#39;; $j=Get-Content $f | ConvertFrom-Json; $j | Add-Member -NotePropertyName &#39;hasCompletedOnboarding&#39; -NotePropertyValue $true -Force; $j | ConvertTo-Json | Set-Content $f&quot;
+</code></pre>
+<p>macOS（终端运行，需要 jq，没有就先 <code>brew install jq</code>）：</p>
+<pre><code class="language-bash">jq &#39;. + {&quot;hasCompletedOnboarding&quot;: true}&#39; ~/.claude.json &gt; /tmp/tmp.json &amp;&amp; mv /tmp/tmp.json ~/.claude.json
+</code></pre>
+<h2>怎么切回 200K 上下文、顺便省钱</h2>
+<p>在 <code>~/.claude/settings.json</code>（Windows 是 <code>%userprofile%\.claude\settings.json</code>）的 <code>env</code> 里加入下面几项（和已有配置合并，别覆盖掉你的令牌配置）：</p>
+<pre><code class="language-json">{
+  &quot;env&quot;: {
+    &quot;CLAUDE_CODE_DISABLE_1M_CONTEXT&quot;: &quot;1&quot;,
+    &quot;CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC&quot;: &quot;1&quot;,
+    &quot;CLAUDE_CODE_DISABLE_TERMINAL_TITLE&quot;: &quot;1&quot;,
+    &quot;DISABLE_TELEMETRY&quot;: &quot;1&quot;,
+    &quot;DISABLE_AUTOUPDATER&quot;: &quot;1&quot;,
+    &quot;DISABLE_ERROR_REPORTING&quot;: &quot;1&quot;,
+    &quot;CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS&quot;: &quot;1&quot;
+  }
+}
+</code></pre>
+<p>特别说一下 <code>CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS</code>：Claude Code 默认每次对话都把当前仓库的 git 状态（改了哪些文件等）塞进系统提示里。git 状态一变，缓存的命中就跟着失效，token 消耗和费用都会涨。关掉它，缓存更稳，同样的工作更省钱——本站几个 Claude 分组都是按缓存命中率定的价，这一项对账单影响很实际。</p>
+</article>
+<article class="page" id="page-faq-codex"><h1>Codex 常见问题</h1>
+<h2>明明选了一个模型，账单里为什么还会看到别的模型</h2>
+<p>正常现象，不是配错了，也不是账号被盗。</p>
+<p>Codex 会在后台自己干一些小活：给会话起标题（<code>/resume</code> 历史列表里那行字）、压缩长对话（<code>/compact</code>）、生成代码审查报告（<code>/review</code>）、整理联网搜索结果。干这些时它会自己换便宜模型，不用你在 <code>/model</code> 或 <code>config.toml</code> 里指定的那个。</p>
+<ul>
+<li>这类钱一般很小（几分到几毛），不用管</li>
+<li>单笔大得反常，就来本站「使用日志」按时间对一下模型和金额，对不上到 QQ 群找管理员</li>
+<li>这类辅助调用是 Codex 官方自带行为，没法在配置里关掉</li>
+</ul>
+<h2>常用命令</h2>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/model</code></td>
+<td>选择当前模型</td>
+</tr>
+<tr>
+<td><code>/approvals</code></td>
+<td>设置本会话审批规则</td>
+</tr>
+<tr>
+<td><code>/review</code></td>
+<td>审查当前工作区变更</td>
+</tr>
+<tr>
+<td><code>/resume</code></td>
+<td>从历史会话里选一个继续</td>
+</tr>
+<tr>
+<td><code>/new</code></td>
+<td>开新对话</td>
+</tr>
+<tr>
+<td><code>/init</code></td>
+<td>在当前目录生成 AGENTS.md 模板</td>
+</tr>
+<tr>
+<td><code>/compact</code></td>
+<td>总结对话释放上下文</td>
+</tr>
+<tr>
+<td><code>/undo</code></td>
+<td>撤销上一次操作</td>
+</tr>
+<tr>
+<td><code>/diff</code></td>
+<td>查看当前 git diff</td>
+</tr>
+<tr>
+<td><code>/mention</code></td>
+<td>把指定文件/目录加入上下文</td>
+</tr>
+<tr>
+<td><code>/status</code></td>
+<td>查看会话配置和 token 用量</td>
+</tr>
+<tr>
+<td><code>/mcp</code></td>
+<td>列出可用的 MCP 工具</td>
+</tr>
+<tr>
+<td><code>/exit</code></td>
+<td>退出</td>
+</tr>
+</tbody></table>
+<h2>手动写 config.toml 时的推荐写法（Windows 尤其推荐）</h2>
+<p>不用 CC Switch、直接改配置文件的人，按这个骨架填（目录：<code>%userprofile%\.codex</code>，macOS/Linux 是 <code>~/.codex</code>）：</p>
+<pre><code class="language-toml">model_provider = &quot;hajimi&quot;
+model = &quot;gpt-5.6-sol&quot;
+model_reasoning_effort = &quot;high&quot;
+network_access = &quot;enabled&quot;
+disable_response_storage = true
+windows_wsl_setup_acknowledged = true
+model_verbosity = &quot;high&quot;
+
+[model_providers.hajimi]
+name = &quot;hajimi&quot;
+base_url = &quot;https://hajimi.men/v1&quot;
+wire_api = &quot;responses&quot;
+requires_openai_auth = true
+</code></pre>
+<p>同目录的 <code>AGENTS.md</code> 是 Codex 的全局提示词文件，没有就新建，写进去的规则对所有项目生效，例如：</p>
+<pre><code class="language-markdown"># 全局工作指南
+- 回答必须使用中文
+- 总结、计划类输出先理清逻辑，再用表格整齐呈现
+</code></pre>
+<h2>开启 Codex 内置网络搜索</h2>
+<p>在 <code>config.toml</code> 里加入：</p>
+<pre><code class="language-toml">[features]
+web_search_request = true
+</code></pre>
+<p>重启 Codex 生效。</p>
+<h2>Windows 下 Codex 乱码</h2>
+<p>按 Win+R 输入 <code>intl.cpl</code> 回车 → 切到「管理」选项卡 → 点「更改系统区域设置」→ 勾选「Beta 版：使用 Unicode UTF-8 提供全球语言支持」→ 确定，重启电脑后生效。</p>
+<h2>401 报错（Unauthorized / exceeded retry limit）</h2>
+<p>多半是本机残留的环境变量在跟 CC Switch 的配置打架。先检查：</p>
+<ul>
+<li>Windows（cmd 运行）：<code>cmd /c &quot;if defined OPENAI_API_KEY (echo KEY=OK) else (echo KEY=MISSING) &amp; if defined OPENAI_BASE_URL (echo URL=OK) else (echo URL=MISSING)&quot;</code></li>
+<li>macOS（终端运行）：<code>[ -z &quot;$OPENAI_API_KEY&quot; ] &amp;&amp; echo KEY=MISSING || echo KEY=OK; [ -z &quot;$OPENAI_BASE_URL&quot; ] &amp;&amp; echo URL=MISSING || echo URL=OK</code></li>
+</ul>
+<p>两个都显示 MISSING 是正常的，直接查配置；如果显示 OK，说明有残留变量在覆盖配置：Windows 用 <code>cmd /c &quot;setx OPENAI_API_KEY &quot;&quot; &amp; setx OPENAI_BASE_URL &quot;&quot;&quot;</code> 清掉，macOS 用 <code>unset OPENAI_API_KEY OPENAI_BASE_URL</code>（并检查 shell 配置文件里有没有写死）。</p>
+<p>还不行，再核对两处：<code>~/.codex/auth.json</code> 里的 Key 是否完整正确、<code>config.toml</code> 里的 <code>base_url</code> 是否为 <code>https://hajimi.men/v1</code>。</p>
+<h2>403 报错（Forbidden）</h2>
+<p>按顺序自查：</p>
+<ol>
+<li><strong>令牌分组对不对</strong>：Codex 必须用 GPT 分组令牌；拿 Claude 分组的令牌来调 GPT 模型就是 403</li>
+<li><strong>模型在不在这个分组里</strong>：用模型广场确认该模型属于你令牌的分组</li>
+<li><strong>余额够不够</strong>：钱包余额不足也会拒</li>
+<li><strong>令牌状态</strong>：令牌被禁用或过期，去令牌管理里看一眼</li>
+</ol>
+<p>都正常还 403，截报错图到 QQ 群找管理员。</p>
+<h2>Connection failed（连接失败）</h2>
+<p>先分清是本机网络问题还是配置问题：终端里运行 <code>codex</code> 直接对话测试——终端能用、插件不能用，就是插件/编辑器的问题，重启编辑器；终端也不能用，先关掉本机的代理工具再试，还不行换个网络环境试。都排除了还连不上，带报错截图到 QQ 群。</p>
+</article>
+<article class="page" id="page-faq-cline"><h1>在 Cline 等工具里使用（OpenAI 兼容接入）</h1>
+<p>本站所有分组都提供 OpenAI 兼容接口，所以凡是支持「OpenAI Compatible」自定义接口的工具（Cline、Roo Code、OpenCode、AionUI 等）都能接，填法都一样。</p>
+<p>先说明：<strong>本站目前没有上架 Gemini 模型</strong>，后续上了会在公告里说。下面以国产模型为例演示（Cline，其他工具同理）。</p>
+<h2>以 Cline 为例（VS Code 插件）</h2>
+<ol>
+<li>在本站建一个<strong>国模分组</strong>的令牌，复制 Key</li>
+<li>VS Code 里装 Cline 插件（扩展里搜 Cline 安装），点左侧 Cline 图标打开</li>
+<li>进入 API 配置（首次打开会自动弹，已用过的点右上角齿轮进设置），按下面填：<ul>
+<li>API Provider：<strong>OpenAI Compatible</strong></li>
+<li>Base URL：<code>https://hajimi.men/v1</code></li>
+<li>API Key：粘贴你的国模分组令牌</li>
+<li>Model ID：填模型广场里国模分组的模型名（以广场实时展示为准）</li>
+</ul>
+</li>
+<li>点 Done 保存，发一句话测试</li>
+</ol>
+<h2>通用填法（其他工具照抄这张表）</h2>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>填什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>接口类型</td>
+<td>OpenAI Compatible / OpenAI 兼容</td>
+</tr>
+<tr>
+<td>Base URL</td>
+<td><a href="https://hajimi.men/v1">https://hajimi.men/v1</a></td>
+</tr>
+<tr>
+<td>API Key</td>
+<td>你在本站对应分组建的令牌</td>
+</tr>
+<tr>
+<td>模型名</td>
+<td>模型广场里该分组的模型名，原样复制</td>
+</tr>
+</tbody></table>
+<p>换用别的分组同理：调 GPT 模型就用 GPT 分组令牌，调 Claude 模型就用 Claude 分组令牌（注意部分工具只认 OpenAI 格式，Claude 模型经兼容接口调用时表现以工具为准）。</p>
+<h2>安全提醒</h2>
+<p>API Key 等于你的钱包，谁拿到都能花你的余额：不要发到群聊、不要出现在公开截图里。怀疑泄露了，立刻到本站令牌管理里删掉重建。</p>
+</article>
+<article class="page" id="page-faq-通用报错速查"><h1>通用报错速查</h1>
+<p>先对着这张表自查，多数问题都是地址、分组、Key 三件事填错。</p>
+<table>
+<thead>
+<tr>
+<th>报错</th>
+<th>含义</th>
+<th>怎么处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>401 Unauthorized</td>
+<td>Key 不对或没带上</td>
+<td>检查 Key 是否复制完整（前后别带空格）、是否用了已删除/禁用的令牌；用 CC Switch 的检查环境变量残留有没有覆盖配置</td>
+</tr>
+<tr>
+<td>403 Forbidden</td>
+<td>没权限</td>
+<td>①令牌分组和模型对不上（调 GPT 模型要用 GPT 分组令牌，调 Claude 要用 Claude 分组）②余额不足 ③令牌被禁用/过期</td>
+</tr>
+<tr>
+<td>404 Not Found</td>
+<td>地址填错</td>
+<td>Claude 类工具应填 <code>https://hajimi.men</code>（不带 /v1）；OpenAI 兼容工具应填 <code>https://hajimi.men/v1</code>（带 /v1）。搞反了就是 404</td>
+</tr>
+<tr>
+<td>模型不存在 / model not found</td>
+<td>模型名不对或分组里没这个模型</td>
+<td>到模型广场复制准确模型名；确认它在你令牌的分组里（有的模型只在特定分组有）</td>
+</tr>
+<tr>
+<td>429 Too Many Requests</td>
+<td>请求太频繁或上游正忙</td>
+<td>降并发、等几十秒重试；持续出现就换个分组试试</td>
+</tr>
+<tr>
+<td>500 / 502 / 上游错误</td>
+<td>上游波动</td>
+<td>等一两分钟重试；反复出现可以换同模型的另一个分组，或到 QQ 群看公告是不是在维护</td>
+</tr>
+<tr>
+<td>Insufficient quota / 余额不足</td>
+<td>钱包没钱了</td>
+<td>到本站钱包充值；或检查令牌是否设了额度上限且已用满</td>
+</tr>
+<tr>
+<td>一直转圈 / 超时</td>
+<td>网络或长任务</td>
+<td>先确认本机网络和代理设置；长任务本来就慢，等一等； consistently 超时就把工具彻底重启再试</td>
+</tr>
+</tbody></table>
+<p>自查都过了一遍还不行：把<strong>报错截图 + 你用的工具 + 令牌分组 + 大概时间</strong>发到 QQ 群，管理员按日志帮你对。</p>
+</article>
+<article class="page" id="page-tos-服务条款"><h1>服务条款</h1>
+<p>生效日期：2026-10-28</p>
+<p>欢迎使用哈吉米 API（下称「本平台」）。注册或使用本平台服务，即表示你已阅读并同意本条款。本条款与站内注册时同意的《用户协议》为同一文本。</p>
+<h2>一、服务内容</h2>
+<p>本平台提供大模型 API 接口的中转调用服务，按实际用量计费。模型能力由上游服务商提供，本平台负责接入、计费与转发。</p>
+<h2>二、账号</h2>
+<ol>
+<li>你应使用真实有效的邮箱注册，并妥善保管账号与 API 密钥；通过你的账号与密钥发起的全部调用，均视为你本人行为。</li>
+<li>账号与密钥不得出租、出借、转售或与他人共享。发现异常使用，本平台可暂停或封停账号。</li>
+</ol>
+<h2>三、充值与计费</h2>
+<ol>
+<li>本平台采用预付费制：先充值、后消费，调用按本平台公布的模型价格与分组倍率实时扣费，价格与倍率以站内页面展示为准。</li>
+<li>本平台可调整价格与倍率，调整前会在站内公告；调整后按新价格执行，已消费部分不追溯。</li>
+<li>充值额度仅用于在本平台消费，不可提现、不可转让。</li>
+<li>退款：未消费余额可联系管理员申请退款（支付渠道手续费不予退还）；因违反本条款第四条被封停的账号，余额不予退还。</li>
+</ol>
+<h2>四、使用规范</h2>
+<p>你承诺不利用本平台从事下列行为：</p>
+<ol>
+<li>违反法律法规的行为，或生成、传播违法违规内容；</li>
+<li>侵犯他人合法权益（包括知识产权、隐私权）；</li>
+<li>对本平台或上游服务进行攻击、扫描、压测，或以自动化手段恶意刷量、薅取免费额度；</li>
+<li>将接口转售、转租给第三方，或用于违反模型服务商使用条款的场景；</li>
+<li>其他损害本平台或上游服务商正常运营的行为。</li>
+</ol>
+<p>违反上述约定，本平台可采取警告、限制调用、封停账号等措施，余额处理按第三条第 4 款执行。具体禁止情形见<a href="#tos-%E4%BD%BF%E7%94%A8%E6%94%BF%E7%AD%96">使用政策</a>。</p>
+<h2>五、服务可用性</h2>
+<p>本平台尽力保持服务稳定，但不承诺服务不间断。因上游服务商调整、网络故障、计划内维护等导致的延迟、中断或计费误差，本平台在合理范围内协助处理，但不承担间接损失。重要业务建议自行准备备用渠道。</p>
+<h2>六、责任限制</h2>
+<p>模型输出由上游模型生成，本平台不对输出内容的准确性、合法性负责；你应自行判断并承担使用输出的后果。</p>
+<h2>七、协议变更</h2>
+<p>本条款可随业务调整修订，修订后在站内公告，继续使用即视为接受。</p>
+<h2>八、联系方式</h2>
+<p>售后与条款相关事项，请通过官网公布的 QQ 群或管理员联系方式联系我们。</p>
+<p>相关文件：<a href="#tos-%E4%BD%BF%E7%94%A8%E6%94%BF%E7%AD%96">使用政策</a>｜<a href="#tos-%E6%9C%8D%E5%8A%A1%E7%89%B9%E5%AE%9A%E6%9D%A1%E6%AC%BE">服务特定条款</a>｜<a href="#tos-%E6%94%AF%E6%8C%81%E7%9A%84%E5%9B%BD%E5%AE%B6%E5%92%8C%E5%9C%B0%E5%8C%BA">支持的国家和地区</a></p>
+</article>
+<article class="page" id="page-tos-使用政策"><h1>使用政策</h1>
+<p>生效日期：2026-10-28</p>
+<p>本政策是《服务条款》第四条的细化，说明哪些使用方式不被允许。你的使用还必须同时符合上游模型服务商的使用政策；上游政策与本政策冲突时，以更严格者为准。</p>
+<h2>一、禁止的内容与行为</h2>
+<p>不得通过本平台生成、处理或传播：</p>
+<ol>
+<li>违反法律法规的内容，包括但不限于涉政有害信息、淫秽色情（尤其涉及未成年人，一经发现直接封号）、暴力恐怖、赌博、毒品相关内容；</li>
+<li>诈骗、钓鱼、垃圾信息批量群发等欺诈与骚扰内容；</li>
+<li>侵犯他人知识产权、隐私权、名誉权的内容；</li>
+<li>恶意代码、漏洞利用、入侵他人系统等网络攻击内容与行为。</li>
+</ol>
+<h2>二、禁止的接口使用方式</h2>
+<ol>
+<li>共享、出租、转售账号或 API 密钥；</li>
+<li>以自动化手段批量注册账号、薅取赠送额度或签到奖励；</li>
+<li>对本平台或上游接口进行扫描、压测、攻击，或故意发送异常请求干扰服务；</li>
+<li>将模型输出用于训练、蒸馏与本平台所接入模型构成竞争的模型（特定分组另有明示禁令的，从其规定，见《服务特定条款》）；</li>
+<li>绕过本平台的计费、限流与安全措施。</li>
+</ol>
+<h2>三、违规处理</h2>
+<p>视情节轻重，本平台可采取：警告、限制调用、暂停密钥、封停账号。封停账号的余额处理按《服务条款》第三条第 4 款执行（不予退还）。涉及违法犯罪的，本平台保留移交有关机关的权利。</p>
+<h2>四、申诉</h2>
+<p>认为处理有误的，可通过 QQ 群联系管理员申诉，并提供账号与调用时间等信息以便核查。</p>
+</article>
+<article class="page" id="page-tos-服务特定条款"><h1>服务特定条款</h1>
+<p>生效日期：2026-10-28</p>
+<p>本文件是《服务条款》的补充，约定各分组、各类调用的特别规则。与《服务条款》冲突时，以本文件为准。</p>
+<h2>一、计费口径</h2>
+<ol>
+<li>全部调用按 Token 用量计费，单价＝模型基础价 × 你令牌所在分组的倍率，以模型广场与使用日志的展示为准。</li>
+<li>支持缓存的模型区分「缓存命中」与「缓存未命中」计价，命中部分价格更低；命中率取决于你的调用方式（如会话是否连续、系统提示是否稳定），平台不承诺固定命中率，分组说明中的缓存比例为经验参考值。</li>
+<li>客户端软件（Claude Code、Codex 等）自动发起的辅助调用（生成标题、压缩上下文、代码审查、子任务等）同样计费，属正常消费，详见对应常见问题页。</li>
+<li>预扣额度与实际消费有差额的，以结算后的使用日志记录为准。</li>
+</ol>
+<h2>二、Claude 分组</h2>
+<ol>
+<li>会话保持（粘性路由）默认开启：同一会话尽量走同一渠道以提高缓存命中；渠道故障时自动切换，切换后缓存可能短暂失效，属正常现象。</li>
+<li><strong>Claude-Max 分组禁止蒸馏</strong>：不得将该分组的模型输出用于训练或蒸馏其他模型，不得用于违规「破甲」用途；违反者封号且余额不退（与令牌分组说明一致）。</li>
+<li>标注为预览（preview）的模型稳定性不作保证，可能随时下线。</li>
+</ol>
+<h2>三、GPT 分组</h2>
+<ol>
+<li>Codex 自动审批、联网搜索整理等客户端行为产生的调用按正常规则计费。</li>
+<li>长上下文调用按站内公布的长上下文价格计费（见模型广场价格明细）。</li>
+</ol>
+<h2>四、国模分组</h2>
+<ol>
+<li>国产模型经兼容接口提供，不同客户端的适配表现可能有差异。</li>
+<li>标注 preview 的模型为预览版，不保证稳定性与长期可用。</li>
+</ol>
+<h2>五、数据处理</h2>
+<ol>
+<li>你的请求内容经本平台转发至上游模型服务商处理，上游的处理适用其各自政策；本平台仅留存计费所需的元数据日志（时间、模型、用量、金额），细则见站内《隐私政策》。</li>
+<li>请勿通过本平台发送你无权处理或不希望被上游处理的敏感个人信息。</li>
+</ol>
+<h2>六、可用性</h2>
+<p>各分组的可用模型、价格与倍率以站内实时展示为准，调整按《服务条款》第三条执行（公告后生效、不追溯）。生图等未开放功能不在本条款覆盖范围内，开放后另行公告。</p>
+</article>
+<article class="page" id="page-tos-支持的国家和地区"><h1>支持的国家和地区</h1>
+<p>生效日期：2026-10-28</p>
+<p>本页说明哈吉米 API 商业 API 访问的支持区域政策。</p>
+<p>在法律允许的范围内，本平台保留不向下列支持区域以外的国家和地区的实体提供产品或服务的权利。我们目前提供商业 API 访问的国家、地区和领土如下（共 175 项）：</p>
+<table>
+<thead>
+<tr>
+<th>支持区域</th>
+<th>支持区域</th>
+<th>支持区域</th>
+<th>支持区域</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>阿尔巴尼亚</td>
+<td>阿尔及利亚</td>
+<td>安道尔</td>
+<td>安哥拉</td>
+</tr>
+<tr>
+<td>安提瓜和巴布达</td>
+<td>阿根廷</td>
+<td>亚美尼亚</td>
+<td>澳大利亚</td>
+</tr>
+<tr>
+<td>奥地利</td>
+<td>阿塞拜疆</td>
+<td>巴哈马</td>
+<td>巴林</td>
+</tr>
+<tr>
+<td>孟加拉国</td>
+<td>巴巴多斯</td>
+<td>比利时</td>
+<td>伯利兹</td>
+</tr>
+<tr>
+<td>贝宁</td>
+<td>不丹</td>
+<td>玻利维亚</td>
+<td>波斯尼亚和黑塞哥维那</td>
+</tr>
+<tr>
+<td>博茨瓦纳</td>
+<td>巴西</td>
+<td>文莱</td>
+<td>保加利亚</td>
+</tr>
+<tr>
+<td>布基纳法索</td>
+<td>布隆迪</td>
+<td>佛得角</td>
+<td>柬埔寨</td>
+</tr>
+<tr>
+<td>喀麦隆</td>
+<td>加拿大</td>
+<td>乍得</td>
+<td>智利</td>
+</tr>
+<tr>
+<td>哥伦比亚</td>
+<td>科摩罗</td>
+<td>刚果（布拉柴维尔）</td>
+<td>哥斯达黎加</td>
+</tr>
+<tr>
+<td>科特迪瓦</td>
+<td>克罗地亚</td>
+<td>塞浦路斯</td>
+<td>捷克</td>
+</tr>
+<tr>
+<td>丹麦</td>
+<td>吉布提</td>
+<td>多米尼克</td>
+<td>多米尼加共和国</td>
+</tr>
+<tr>
+<td>厄瓜多尔</td>
+<td>埃及</td>
+<td>萨尔瓦多</td>
+<td>赤道几内亚</td>
+</tr>
+<tr>
+<td>爱沙尼亚</td>
+<td>斯威士兰</td>
+<td>斐济</td>
+<td>芬兰</td>
+</tr>
+<tr>
+<td>法国</td>
+<td>加蓬</td>
+<td>冈比亚</td>
+<td>格鲁吉亚</td>
+</tr>
+<tr>
+<td>德国</td>
+<td>加纳</td>
+<td>希腊</td>
+<td>格林纳达</td>
+</tr>
+<tr>
+<td>危地马拉</td>
+<td>几内亚</td>
+<td>几内亚比绍</td>
+<td>圭亚那</td>
+</tr>
+<tr>
+<td>海地</td>
+<td>洪都拉斯</td>
+<td>匈牙利</td>
+<td>冰岛</td>
+</tr>
+<tr>
+<td>印度</td>
+<td>印度尼西亚</td>
+<td>伊拉克</td>
+<td>爱尔兰</td>
+</tr>
+<tr>
+<td>以色列</td>
+<td>意大利</td>
+<td>牙买加</td>
+<td>日本</td>
+</tr>
+<tr>
+<td>约旦</td>
+<td>哈萨克斯坦</td>
+<td>肯尼亚</td>
+<td>基里巴斯</td>
+</tr>
+<tr>
+<td>科威特</td>
+<td>吉尔吉斯斯坦</td>
+<td>老挝</td>
+<td>拉脱维亚</td>
+</tr>
+<tr>
+<td>黎巴嫩</td>
+<td>莱索托</td>
+<td>利比里亚</td>
+<td>列支敦士登</td>
+</tr>
+<tr>
+<td>立陶宛</td>
+<td>卢森堡</td>
+<td>马达加斯加</td>
+<td>马拉维</td>
+</tr>
+<tr>
+<td>马来西亚</td>
+<td>马尔代夫</td>
+<td>马耳他</td>
+<td>马绍尔群岛</td>
+</tr>
+<tr>
+<td>毛里塔尼亚</td>
+<td>毛里求斯</td>
+<td>墨西哥</td>
+<td>密克罗尼西亚</td>
+</tr>
+<tr>
+<td>摩尔多瓦</td>
+<td>摩纳哥</td>
+<td>蒙古</td>
+<td>黑山</td>
+</tr>
+<tr>
+<td>摩洛哥</td>
+<td>莫桑比克</td>
+<td>纳米比亚</td>
+<td>瑙鲁</td>
+</tr>
+<tr>
+<td>尼泊尔</td>
+<td>荷兰</td>
+<td>新西兰</td>
+<td>尼日尔</td>
+</tr>
+<tr>
+<td>尼日利亚</td>
+<td>北马其顿</td>
+<td>挪威</td>
+<td>阿曼</td>
+</tr>
+<tr>
+<td>巴基斯坦</td>
+<td>帕劳</td>
+<td>巴勒斯坦</td>
+<td>巴拿马</td>
+</tr>
+<tr>
+<td>巴布亚新几内亚</td>
+<td>巴拉圭</td>
+<td>秘鲁</td>
+<td>菲律宾</td>
+</tr>
+<tr>
+<td>波兰</td>
+<td>葡萄牙</td>
+<td>卡塔尔</td>
+<td>罗马尼亚</td>
+</tr>
+<tr>
+<td>卢旺达</td>
+<td>圣基茨和尼维斯</td>
+<td>圣卢西亚</td>
+<td>圣文森特和格林纳丁斯</td>
+</tr>
+<tr>
+<td>萨摩亚</td>
+<td>圣马力诺</td>
+<td>圣多美和普林西比</td>
+<td>沙特阿拉伯</td>
+</tr>
+<tr>
+<td>塞内加尔</td>
+<td>塞尔维亚</td>
+<td>塞舌尔</td>
+<td>塞拉利昂</td>
+</tr>
+<tr>
+<td>新加坡</td>
+<td>斯洛伐克</td>
+<td>斯洛文尼亚</td>
+<td>所罗门群岛</td>
+</tr>
+<tr>
+<td>南非</td>
+<td>韩国</td>
+<td>西班牙</td>
+<td>斯里兰卡</td>
+</tr>
+<tr>
+<td>苏里南</td>
+<td>瑞典</td>
+<td>瑞士</td>
+<td>中国台湾</td>
+</tr>
+<tr>
+<td>塔吉克斯坦</td>
+<td>坦桑尼亚</td>
+<td>泰国</td>
+<td>东帝汶</td>
+</tr>
+<tr>
+<td>多哥</td>
+<td>汤加</td>
+<td>特立尼达和多巴哥</td>
+<td>突尼斯</td>
+</tr>
+<tr>
+<td>土耳其</td>
+<td>土库曼斯坦</td>
+<td>图瓦卢</td>
+<td>乌干达</td>
+</tr>
+<tr>
+<td>乌克兰（除克里米亚、顿涅茨克、赫尔松、卢甘斯克和扎波罗热地区外）</td>
+<td>阿拉伯联合酋长国</td>
+<td>英国</td>
+<td>美利坚合众国</td>
+</tr>
+<tr>
+<td>乌拉圭</td>
+<td>乌兹别克斯坦</td>
+<td>瓦努阿图</td>
+<td>梵蒂冈城</td>
+</tr>
+<tr>
+<td>越南</td>
+<td>赞比亚</td>
+<td>津巴布韦</td>
+<td></td>
+</tr>
+</tbody></table>
+<ul>
+<li>此列表可能定期更新</li>
+<li>对于未列出的地区，请联系支持团队（QQ 群）了解可用性</li>
+<li>某些服务可能在特定地区有额外限制</li>
+</ul>
+<p>相关文件：<a href="#tos-%E6%9C%8D%E5%8A%A1%E6%9D%A1%E6%AC%BE">服务条款</a>｜<a href="#tos-%E4%BD%BF%E7%94%A8%E6%94%BF%E7%AD%96">使用政策</a>｜<a href="#tos-%E6%9C%8D%E5%8A%A1%E7%89%B9%E5%AE%9A%E6%9D%A1%E6%AC%BE">服务特定条款</a></p>
+</article></main>
+</div>
+<script>
+  function route() {
+    var slug = decodeURIComponent((location.hash || '#README').slice(1));
+    var found = false;
+    document.querySelectorAll('.page').forEach(function (el) {
+      var on = el.id === 'page-' + slug;
+      el.classList.toggle('show', on);
+      if (on) found = true;
+    });
+    if (!found) {
+      document.getElementById('page-README').classList.add('show');
+      slug = 'README';
+    }
+    document.querySelectorAll('.nav-item').forEach(function (a) {
+      a.classList.toggle('active', a.dataset.slug === slug);
+    });
+    document.querySelector('nav').classList.remove('open');
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', route);
+  route();
+</script>
+</body>
+</html>
