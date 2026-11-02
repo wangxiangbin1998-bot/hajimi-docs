@@ -71,6 +71,7 @@
 <a class="nav-item" data-slug="advanced-aionui" href="#advanced-aionui">AionUI 配置</a>
 <a class="nav-item" data-slug="advanced-workbuddy" href="#advanced-workbuddy">WorkBuddy 配置</a>
 <a class="nav-item" data-slug="advanced-openclaw" href="#advanced-openclaw">OpenClaw 配置</a>
+<a class="nav-item" data-slug="advanced-chatbox" href="#advanced-chatbox">Chatbox 配置</a>
 <div class="nav-sec">常见问题</div>
 <a class="nav-item" data-slug="faq-claude-code" href="#faq-claude-code">Claude Code 常见问题</a>
 <a class="nav-item" data-slug="faq-codex" href="#faq-codex">Codex 常见问题</a>
@@ -146,6 +147,7 @@
 <li><a href="#advanced-aionui">AionUI 配置</a></li>
 <li><a href="#advanced-workbuddy">WorkBuddy 配置</a></li>
 <li><a href="#advanced-openclaw">OpenClaw 配置</a></li>
+<li><a href="#advanced-chatbox">Chatbox 配置</a></li>
 </ol>
 <blockquote>
 <p>文档中标注的位置是配图占位，内容以文字步骤为准。</p>
@@ -565,6 +567,53 @@ openclaw tui
 <li>报模型不存在：模型 id 与广场不一致，或密钥分组不对</li>
 <li>改了配置没生效：没重启 gateway</li>
 <li>服务器上跑还想从外网开管理界面：自己用反向代理加 HTTPS，并按 OpenClaw 官方说明处理网关鉴权，不要裸奔暴露端口</li>
+</ul>
+</article>
+<article class="page" id="page-advanced-chatbox"><h1>Chatbox 配置</h1>
+<p>Chatbox 是老牌的跨平台 AI 聊天客户端（开源免费，官网：<a href="https://chatboxai.app">https://chatboxai.app</a> ）：Windows、Mac、Linux、iOS、安卓、网页版全都有，界面简单清爽，适合日常聊天、写作、翻译、问问题这类纯对话场景。</p>
+<h2>下载安装</h2>
+<ul>
+<li>电脑和手机：到官网 <a href="https://chatboxai.app">https://chatboxai.app</a> 下载对应版本安装</li>
+<li>不想装也可以直接用它的网页版，配置步骤一样</li>
+</ul>
+<h2>配置本站模型</h2>
+<p>先在本站建好密钥（用哪类模型，就建哪个分组的密钥），然后：</p>
+<ol>
+<li>打开 Chatbox，点左下角「设置」→「模型提供方」（手机端先点左上角菜单，把侧边栏展开）</li>
+<li>把提供方列表拉到底部，点「添加」→「添加自定义提供商」</li>
+<li>名称填 <code>哈吉米 API</code>（随意，好认就行），<strong>API 模式选「OpenAI API 兼容」</strong></li>
+<li>按下表填：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>填什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>API 密钥</td>
+<td>你在本站建的密钥</td>
+</tr>
+<tr>
+<td>API 主机</td>
+<td><code>https://hajimi.men/v1</code></td>
+</tr>
+<tr>
+<td>API 路径</td>
+<td>留空，不用填</td>
+</tr>
+</tbody></table>
+<p>填的时候看一眼界面下方实时拼出来的完整地址，应该是 <code>https://hajimi.men/v1/chat/completions</code>，对不上就是主机那栏填错了。</p>
+<ol start="5">
+<li>添加模型：在「模型」区域点「获取」，会自动拉出本站的模型列表，勾选要用的；也可以点「新建」手动填模型名（模型名从本站「模型广场」里复制，一字别差）。支持识图的模型，点它右侧的齿轮，把「视觉」能力勾上，不然发图片会报错</li>
+<li>点 API 密钥旁边的「检查」，显示连接成功</li>
+<li>回首页新建对话，在模型选择里选刚加的模型，开聊</li>
+</ol>
+<h2>注意事项</h2>
+<ul>
+<li>能用哪些模型、扣多少费，由密钥所在的分组决定：想用 Claude 就建 Claude 分组的密钥，想用 GPT、国模同理；一个提供方配置里可以加多个模型，切换着用没问题</li>
+<li>「检查」通过但发消息报错，多半是模型名填错或分组不对，先去模型广场核对模型名，再看 <a href="#faq-%E9%80%9A%E7%94%A8%E6%8A%A5%E9%94%99%E9%80%9F%E6%9F%A5">通用报错速查</a></li>
 </ul>
 </article>
 <article class="page" id="page-faq-claude-code"><h1>Claude Code 常见问题</h1>
