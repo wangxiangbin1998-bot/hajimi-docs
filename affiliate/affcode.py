@@ -9,6 +9,12 @@
   口径与 settle.py 完全一致：redemptions 里 status=3、redeemed_time>0、
   批次 name 以「云猫」开头，按 used_user_id 汇总面额 >= 10 * 500000）
 - 唯一、先到先得（users.aff_code 本身带 UNIQUE 索引，库层强制）
+- 大小写防线（2026-11-05 补）：库层 UNIQUE 区分大小写，Xiaowang 与
+  XIAOWANG 能同时入库；但皮肤已定「≥5 位码提交前自动转大写」，小写存的
+  码会被串绑到大写码主名下——故本工具一切按大写形处理：站长输入的新码
+  先整体转大写再走全部校验，落库与台账新条目只存大写形；撞现存码与
+  台账历史码的比对一律大小写不敏感（两侧都转大写），任何大小写变体
+  都视为同一个码，严于库层约束
 - 用过的码永不回收：换掉 / 封号 / 注销的码永久退役——靠台账拦截，
   台账里出现过的任何码（旧码、新码、seed 存量）都不许再发给任何人
 - 90 天内限改 1 次（按台账里该用户最近一次 apply 改码记录算）
@@ -222,6 +228,12 @@ def append_ledger(path: Path, row: dict):
 
 # ================= 业务校验 =================
 
+def norm_code(code: str) -> str:
+    """码的规范形：整体转大写。站长输入的规范化、撞码比对、台账比对、
+    落库与写台账，一律用规范形——大小写变体视为同一个码。"""
+    return (code or "").upper()
+
+
 def effective_invitee_count(db: DB, user_id: int) -> int:
     """有效邀请数：与 settle.py 完全同口径——被邀请人累计兑换云猫码
     （status=3、redeemed_time>0、批次名以「云猫」开头）面额 >= ¥10 的人数。"""
@@ -243,9 +255,15 @@ def effective_invitee_count(db: DB, user_id: int) -> int:
                if face_of.get(r["id"], 0) >= EFFECTIVE_THRESHOLD_QUOTA)
 
 
-def run_checks(db: DB, ledger_rows, ledger_exists: bool, username: str, new_code: str):
+def run_checks(db: DB, ledger_rows, ledger_exists: bool, username: str, new_code: str,
+               raw_code: str = None):
     """逐项校验，返回 (results, user_row)。
-    results: list[(ok: bool, label: str, detail: str)]"""
+    results: list[(ok: bool, label: str, detail: str)]
+    new_code 在此先规范化为大写形，后续全部校验与落库都用规范形；
+    raw_code 为站长原始输入，仅用于在结果里展示规范化动作。"""
+    if raw_code is None:
+        raw_code = new_code
+    new_code = norm_code(new_code)
     results = []
 
     def add(ok, label, detail):
@@ -277,6 +295,14 @@ def run_checks(db: DB, ledger_rows, ledger_exists: bool, username: str, new_code
     cur_code = user["aff_code"] or ""
     add(True, "当前邀请码", cur_code or "（空）")
 
+    # ---- 大小写规范化 ----
+    if raw_code != new_code:
+        add(True, "大小写规范化",
+            f"输入「{raw_code}」已整体转大写为「{new_code}」——落库与台账只用大写形，"
+            "大小写变体一律视为同一个码")
+    else:
+        add(True, "大小写规范化", "输入即大写形，无需转换（大小写变体一律视为同一个码）")
+
     # ---- 门槛：有效邀请满 3 ----
     eff = effective_invitee_count(db, user["id"])
     add(eff >= EFFECTIVE_REQUIRED, "申请门槛",
@@ -304,7 +330,7 @@ def run_checks(db: DB, ledger_rows, ledger_exists: bool, username: str, new_code
     if not (MIN_LEN <= len(new_code) <= MAX_LEN):
         fmt_problems.append(f"长度 {len(new_code)} 位（要求 {MIN_LEN}–{MAX_LEN} 位）")
     if not CODE_RE.match(new_code):
-        fmt_problems.append("含非法字符（只许大写字母 A–Z 和数字 0–9，注意别带小写）")
+        fmt_problems.append("含非法字符（只许字母 A–Z 和数字 0–9；小写输入已自动转大写，仍不过就是有别的字符）")
     if fmt_problems:
         add(False, "码格式", "；".join(fmt_problems))
     else:
@@ -323,18 +349,22 @@ def run_checks(db: DB, ledger_rows, ledger_exists: bool, username: str, new_code
     else:
         add(True, "保留词", "未命中保留词")
 
-    # ---- 撞现存码 ----
+    # ---- 撞现存码（大小写不敏感：库层 UNIQUE 区分大小写，这里严于库层） ----
     hit = db.execute(
-        "SELECT id, username FROM users WHERE aff_code = ?", (new_code,)
+        "SELECT id, username, aff_code FROM users WHERE UPPER(aff_code) = ?",
+        (new_code,),
     ).fetchall()
-    if hit:
-        h = hit[0]
-        if h["id"] == user["id"]:
-            add(False, "撞现存码", "这就是该用户当前的码，没必要改")
-        else:
-            add(False, "撞现存码", f"已被用户 {h['username']}（id={h['id']}）占用，先到先得")
+    others = [h for h in hit if h["id"] != user["id"]]
+    if others:
+        desc = "、".join(
+            f"用户 {h['username']}（id={h['id']}，其码现存形态「{h['aff_code']}」）"
+            for h in others)
+        add(False, "撞现存码",
+            f"大小写变体已被占用：{desc}——大小写变体视为同码，先到先得")
+    elif hit:
+        add(False, "撞现存码", "这就是该用户当前的码（或其大小写变体），没必要改")
     else:
-        add(True, "撞现存码", "全站现存邀请码里没人用")
+        add(True, "撞现存码", "全站现存邀请码（含大小写变体）里没人用")
 
     # ---- 撞历史码（永不回收，查台账） ----
     if not ledger_exists:
@@ -344,14 +374,15 @@ def run_checks(db: DB, ledger_rows, ledger_exists: bool, username: str, new_code
         ever_used = set()
         for r in ledger_rows:
             if r["old_code"]:
-                ever_used.add(r["old_code"])
+                ever_used.add(norm_code(r["old_code"]))
             if r["new_code"]:
-                ever_used.add(r["new_code"])
+                ever_used.add(norm_code(r["new_code"]))
         if new_code in ever_used:
             add(False, "永不回收（台账）",
-                "这个码在台账里出现过（曾被使用/已退役），按规矩永久退役，不再启用")
+                "这个码（含大小写变体）在台账里出现过（曾被使用/已退役），"
+                "按规矩永久退役，不再启用")
         else:
-            add(True, "永不回收（台账）", "台账历史（含退役码）里没出现过")
+            add(True, "永不回收（台账）", "台账历史（含退役码及大小写变体）里没出现过")
 
     return results, user
 
@@ -369,8 +400,10 @@ def verdict(results) -> bool:
 
 def cmd_check(db, lpath, username, new_code) -> int:
     rows, exists = load_ledger(lpath)
-    print(f"== 自定义邀请码校验（只查不改）｜用户 {username} ｜新码 {new_code} ==")
-    results, _ = run_checks(db, rows, exists, username, new_code)
+    raw_code, new_code = new_code, norm_code(new_code)
+    shown = new_code if raw_code == new_code else f"{new_code}（输入「{raw_code}」已规范化为大写）"
+    print(f"== 自定义邀请码校验（只查不改）｜用户 {username} ｜新码 {shown} ==")
+    results, _ = run_checks(db, rows, exists, username, new_code, raw_code)
     print_results(results)
     if verdict(results):
         print("结论：可改 ✓ —— 确认无误后跑 apply 真正执行")
@@ -382,8 +415,10 @@ def cmd_check(db, lpath, username, new_code) -> int:
 
 def cmd_apply(db, lpath, username, new_code) -> int:
     rows, exists = load_ledger(lpath)
-    print(f"== 自定义邀请码改码（先全量校验，全过才执行）｜用户 {username} ｜新码 {new_code} ==")
-    results, user = run_checks(db, rows, exists, username, new_code)
+    raw_code, new_code = new_code, norm_code(new_code)
+    shown = new_code if raw_code == new_code else f"{new_code}（输入「{raw_code}」已规范化为大写）"
+    print(f"== 自定义邀请码改码（先全量校验，全过才执行）｜用户 {username} ｜新码 {shown} ==")
+    results, user = run_checks(db, rows, exists, username, new_code, raw_code)
     print_results(results)
     if not verdict(results):
         bad = [label for ok, label, _ in results if not ok]
