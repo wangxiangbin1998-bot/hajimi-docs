@@ -36,7 +36,12 @@ cp "$SRC_DIR/settle.py" "$APP_DIR/settle.py"
 chmod 755 "$APP_DIR/settle.py"
 
 echo "[3/6] 建 venv 并装 psycopg[binary]（已装则跳过）"
-if [ ! -x "$APP_DIR/venv/bin/python" ]; then
+if ! python3 -c "import ensurepip" >/dev/null 2>&1; then
+    echo "  缺 python3-venv，先 apt 安装"
+    apt-get update -qq && apt-get install -y python3-venv
+fi
+if [ ! -x "$APP_DIR/venv/bin/pip" ]; then
+    rm -rf "$APP_DIR/venv"
     python3 -m venv "$APP_DIR/venv"
 fi
 "$APP_DIR/venv/bin/pip" install -q --upgrade "psycopg[binary]"
