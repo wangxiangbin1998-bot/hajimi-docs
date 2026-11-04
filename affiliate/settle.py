@@ -23,6 +23,12 @@
   供站内 /referrals 展示页同域读取；影子模式只报将发布人数、不写库。
   setting 原有键一律保留；某用户 setting 解析失败时跳过该用户并告警，
   保留原值不用坏数据覆盖。
+- 数据桥扩展（2026-11-05，配合皮肤 v2.9.5）：hajimi_aff 载荷 v 升 2——
+  ①顶层加 total_commission_quota（累计佣金原始额度，供页面与 aff_history
+  同单位精确拆分「返佣累计 / 注册奖励累计」，免去元口径四舍五入的误差）；
+  ②邀请名单每条加 commission_yuan（该被邀请人带来的佣金合计）与
+  last_commission_at（其最近一笔结算时间，无则 0），均由账本表按
+  invitee_id 全量聚合（老数据同样聚合得到）。结算金额逻辑未动。
 - 防刷标记层（只标记、不拦截、不改即结口径）：每轮报表末尾输出异常标记，
   供站长人工复核——同注册 IP（users 表有该字段时）、单日新增被邀请人
   激增、人工黑名单（denylist.txt）邀请人的本期佣金单独标出汇总。
@@ -333,6 +339,7 @@ def build_inviter_stats(db, inviter_id, invitees, invitee_face, effective_count,
 
     total_commission_quota = 0
     records = []
+    invitee_commission = {}   # invitee_id -> (佣金合计 quota, 最近一笔结算时间)
     if db.has_ledger():
         total_row = db.execute(
             "SELECT COALESCE(SUM(commission_quota), 0) AS total FROM affiliate_settlements "
@@ -340,6 +347,15 @@ def build_inviter_stats(db, inviter_id, invitees, invitee_face, effective_count,
             (inviter_id,),
         ).fetchone()
         total_commission_quota = int(total_row["total"])
+        agg_rows = db.execute(
+            "SELECT invitee_id, SUM(commission_quota) AS total, MAX(created_at) AS last_at "
+            "FROM affiliate_settlements WHERE inviter_id = ? GROUP BY invitee_id",
+            (inviter_id,),
+        ).fetchall()
+        for r in agg_rows:
+            invitee_commission[r["invitee_id"]] = (
+                int(r["total"] or 0), int(r["last_at"] or 0),
+            )
         rows = db.execute(
             "SELECT invitee_id, face_quota, rate, commission_quota, created_at "
             "FROM affiliate_settlements WHERE inviter_id = ? "
@@ -358,15 +374,18 @@ def build_inviter_stats(db, inviter_id, invitees, invitee_face, effective_count,
     invitee_list = []
     for u in invitees[:STATS_INVITEES_LIMIT]:
         face = invitee_face.get(u["id"], 0)
+        comm_quota, last_comm_at = invitee_commission.get(u["id"], (0, 0))
         invitee_list.append({
             "username": u["username"],
             "created_at": int(u["created_at"] or 0),
             "redeemed_yuan": yuan2(face),
             "effective": face >= EFFECTIVE_THRESHOLD_QUOTA,
+            "commission_yuan": yuan2(comm_quota),
+            "last_commission_at": last_comm_at,
         })
 
     return {
-        "v": 1,
+        "v": 2,
         "updated_at": now,
         "tier_name": tname,
         "rate": rate,
@@ -374,6 +393,7 @@ def build_inviter_stats(db, inviter_id, invitees, invitee_face, effective_count,
         "invited_total": len(invitees),
         "next_tier": nxt,
         "total_commission_yuan": yuan2(total_commission_quota),
+        "total_commission_quota": total_commission_quota,
         "records": records,
         "invitees": invitee_list,
     }
