@@ -75,6 +75,7 @@
 <a class="nav-item" data-slug="advanced-sillytavern" href="#advanced-sillytavern">SillyTavern（酒馆）配置</a>
 <a class="nav-item" data-slug="advanced-cherry-studio" href="#advanced-cherry-studio">Cherry Studio 配置</a>
 <a class="nav-item" data-slug="advanced-kelivo" href="#advanced-kelivo">Kelivo 配置</a>
+<a class="nav-item" data-slug="advanced-operit" href="#advanced-operit">Operit 配置</a>
 <div class="nav-sec">常见问题</div>
 <a class="nav-item" data-slug="faq-claude-code" href="#faq-claude-code">Claude Code 常见问题</a>
 <a class="nav-item" data-slug="faq-codex" href="#faq-codex">Codex 常见问题</a>
@@ -154,6 +155,7 @@
 <li><a href="#advanced-sillytavern">SillyTavern（酒馆）配置</a></li>
 <li><a href="#advanced-cherry-studio">Cherry Studio 配置</a></li>
 <li><a href="#advanced-kelivo">Kelivo 配置</a></li>
+<li><a href="#advanced-operit">Operit 配置</a></li>
 </ol>
 <blockquote>
 <p>文档中标注的位置是配图占位，内容以文字步骤为准。</p>
@@ -754,6 +756,64 @@ openclaw tui
 <li>「获取模型」失败，先查 Base URL 有没有带 <code>/v1</code>，这是最常见的填错点</li>
 <li>模型名以本站「模型广场」为准，自动获取的不会错</li>
 <li>换设备不用重填：供应商配置可以二维码导出，在新设备上扫码导入，密钥一起带过去</li>
+</ul>
+</article>
+<article class="page" id="page-advanced-operit"><h1>Operit 配置</h1>
+<p>Operit 是安卓上功能最强的开源 AI 助手应用（项目地址：<a href="https://github.com/AAswordman/Operit">https://github.com/AAswordman/Operit</a> ，官网：<a href="https://operit.app">https://operit.app</a> ）：不只是聊天，还能调用工具、处理文件、帮你操作手机；聊天记录和模型配置都只存你本地设备，支持接入任何 OpenAI 兼容的 API，手机上想用强模型干活的选它。</p>
+<h2>下载安装</h2>
+<ul>
+<li>只支持安卓（Android 8.0 及以上、ARM64 设备）：到官网或 GitHub 仓库的 Releases 页下载最新版 APK 安装</li>
+<li>装好打开后先别用它自带的默认配置，按下面步骤换成本站的</li>
+</ul>
+<h2>准备工作</h2>
+<ol>
+<li>注册：打开 <a href="https://hajimi.men/sign-up">https://hajimi.men/sign-up</a> 注册本站账号并登录（注册页有邀请码框的话，有邀请码就照原样填，区分大小写）</li>
+<li>充值：进 <a href="https://hajimi.men/wallet">钱包</a> 页按需充值，1:1 明码实价，充多少用多少</li>
+<li>建密钥：进 <a href="https://hajimi.men/keys">API 密钥</a> 页新建一个密钥，整段复制保存好</li>
+</ol>
+<h2>配置本站模型</h2>
+<ol>
+<li>打开 Operit，进「设置 → 模型与参数配置」，点「新建」建一个模型配置</li>
+<li>按下表填：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>填什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>配置名称</td>
+<td><code>哈吉米 API</code>（随意，好认就行）</td>
+</tr>
+<tr>
+<td>API 提供商</td>
+<td>选 <strong>OpenAI 通用</strong>（OpenAI 兼容）</td>
+</tr>
+<tr>
+<td>API 端点</td>
+<td><code>https://hajimi.men/v1</code>（填到这里就行，它会自动补全后面的路径）</td>
+</tr>
+<tr>
+<td>API 密钥</td>
+<td>你在本站建的密钥</td>
+</tr>
+<tr>
+<td>模型名称</td>
+<td>点输入框右侧的列表图标，拉取本站的模型列表选一个；也可以手动填，例：<code>gpt-5.6-sol</code></td>
+</tr>
+</tbody></table>
+<ol start="3">
+<li>点页面上方的「测试」验证连接，显示通过后保存</li>
+<li>回对话页，在模型选择里切到刚建的这个配置，发一条消息试试，能正常回复就是配好了</li>
+</ol>
+<h2>注意事项</h2>
+<ul>
+<li>报 401（密钥无效）：多半是密钥复制时带了空格、填错了，或者那个密钥已经被删——回本站「API 密钥」页重新建一个，整段复制重填</li>
+<li>报 404（地址不对）：API 端点只填到 <code>/v1</code> 就够，它会自动补全；自己多写了路径、或者少了 <code>/v1</code>，都会 404</li>
+<li>模型名以本站 <a href="https://hajimi.men/pricing">模型广场</a> 为准：手动填时从那里复制，一字别差（区分大小写）；用拉取列表选的不会错</li>
+<li>配置页下半部分有识图、工具调用这类能力开关，按你选的模型实际支持的能力开，不确定的先关着，能正常聊天了再慢慢试</li>
 </ul>
 </article>
 <article class="page" id="page-faq-claude-code"><h1>Claude Code 常见问题</h1>
