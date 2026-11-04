@@ -49,9 +49,9 @@ fi
 echo "[4/6] affiliate.env（连接串配置，已存在则不动）"
 if [ ! -f "$APP_DIR/affiliate.env" ]; then
     cat > "$APP_DIR/affiliate.env" <<'EOF'
-# New API 生产库（PostgreSQL）连接串 —— 从 New API 的 docker-compose / .env
-# 里的 SQL_DSN 取同一个库。只存本文件，不要提交到任何仓库。
-# 例： postgres://用户名:密码@127.0.0.1:5432/库名
+# 一般留空即可：run.sh / shadow.sh 会自动从 New API 现行 SQL_DSN 解析连接串，
+# 并把容器名换成 postgres 容器当前 IP。只有自动解析失效时才手填覆盖。
+# 例： postgres://用户名:密码@172.x.x.x:5432/库名
 AFFILIATE_DSN=
 EOF
     echo "  已生成模板，请编辑填入 AFFILIATE_DSN： $APP_DIR/affiliate.env"
@@ -60,15 +60,32 @@ else
 fi
 chmod 600 "$APP_DIR/affiliate.env"
 
-echo "[5/6] run.sh（cron 入口）"
+echo "[5/6] dsn.sh + run.sh + shadow.sh"
+cat > "$APP_DIR/dsn.sh" <<'EOF'
+# 连接串解析（被 run.sh / shadow.sh 引用）：
+# affiliate.env 里 AFFILIATE_DSN 非空则用它；否则从 New API 现行 SQL_DSN 动态换算——
+# 密码与库名直接取现行配置，把主机部分换成 postgres 容器当前 IP（容器 IP 会变，每次现查）。
+if [ -f /opt/affiliate-settle/affiliate.env ]; then
+    set -a; . /opt/affiliate-settle/affiliate.env; set +a
+fi
+if [ -z "${AFFILIATE_DSN:-}" ]; then
+    RAW=$(grep -rho 'SQL_DSN=[^ "]*' /opt/newapi/ 2>/dev/null | head -1 | cut -d= -f2-)
+    PGIP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' newapi-postgres)
+    AFFILIATE_DSN=$(printf '%s' "$RAW" | sed -E "s|@[^/]+/|@$PGIP:5432/|")
+    export AFFILIATE_DSN
+fi
+EOF
 cat > "$APP_DIR/run.sh" <<'EOF'
 #!/bin/sh
-set -a
-. /opt/affiliate-settle/affiliate.env
-set +a
+. /opt/affiliate-settle/dsn.sh
 exec /opt/affiliate-settle/venv/bin/python /opt/affiliate-settle/settle.py --apply
 EOF
-chmod 755 "$APP_DIR/run.sh"
+cat > "$APP_DIR/shadow.sh" <<'EOF'
+#!/bin/sh
+. /opt/affiliate-settle/dsn.sh
+exec /opt/affiliate-settle/venv/bin/python /opt/affiliate-settle/settle.py
+EOF
+chmod 755 "$APP_DIR/run.sh" "$APP_DIR/shadow.sh"
 
 echo "[6/6] cron 与日志轮转"
 if [ "$WITH_CRON" = "1" ]; then
@@ -92,9 +109,8 @@ echo "  logrotate 已配置：$LOGROTATE_FILE"
 
 cat <<EOF
 
-安装完成。手动影子验证（不发钱）：
-  set -a; . $APP_DIR/affiliate.env; set +a
-  $APP_DIR/venv/bin/python $APP_DIR/settle.py        # 影子模式看报表
-  $APP_DIR/venv/bin/python $APP_DIR/settle.py --apply  # 确认无误后手动结一次
+安装完成。手动影子验证（不发钱，连接串自动解析、不用手填）：
+  $APP_DIR/shadow.sh          # 影子模式看报表
+  $APP_DIR/run.sh             # 确认无误后手动真结一次（与 cron 同一入口）
 日志：$APP_DIR/settle.log ；停自动发放： rm $CRON_FILE
 EOF
