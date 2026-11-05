@@ -11,6 +11,9 @@ KEY=/root/.ssh/hajimi-backup-deploy
 export GIT_SSH_COMMAND="ssh -i $KEY -o StrictHostKeyChecking=accept-new"
 cd "$REPO" || { echo "push fail: repo dir missing"; exit 1; }
 ls -1t "$SRC"/db-*.sql.gz 2>/dev/null | head -14 | while read -r f; do cp -f "$f" "$REPO"/; done
+# 改码台账一并异地备份（文件不存在时跳过，不报错）
+LEDGER=/opt/affiliate-settle/affcode-ledger.tsv
+if [ -f "$LEDGER" ]; then cp -f "$LEDGER" "$REPO"/; fi
 ls -1t "$REPO"/db-*.sql.gz 2>/dev/null | tail -n +15 | xargs -r rm -f
 git add -A
 if git diff --cached --quiet; then
