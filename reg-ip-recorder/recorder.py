@@ -663,6 +663,8 @@ def main() -> int:
                     help="PostgreSQL DSN 或 SQLite 文件路径；省略则读环境变量 RECORDER_DSN")
     ap.add_argument("--apply", action="store_true",
                     help="正式写入（默认只出清单，不写库、不推进状态）")
+    ap.add_argument("--report", action="store_true",
+                    help="只出清单不写库（与默认行为相同，显式写出便于脚本调用；与 --apply 同给时以 --apply 为准）")
     ap.add_argument("--backfill", type=int, default=2,
                     help="拉最近 N 个 UTC 日的日志（默认 2；Bunny 只保留 3 天）")
     ap.add_argument("--bunny-config", default=None,
