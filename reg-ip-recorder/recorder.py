@@ -16,9 +16,10 @@
   （IPv4 抹末段 = /24，IPv6 抹到 /64），所以存下来的就是网段精度。
 
 匹配口径：
-  时间差 diff = 用户 created_at − 事件时间（秒）。事件在边缘节点被记录，
-  通常比建号早 0~2 秒；允许 diff ∈ [-5, +120]（-5 容两边时钟偏差，
-  +120 容源站处理慢）。候选对按 |diff| 从小到大贪心一对一（一事件一人、
+  时间差 diff = 用户 created_at − 事件时间（秒）。2026-11-06 生产实测：
+  注册要走人机验证＋邮箱验证码，事件常比建号早几分钟（实测 Δ 达 +100s
+  与 +670s），故窗口放宽为 diff ∈ [-60, +900]（-60 容时钟偏差与建号后
+  的补发请求，+900 容用户慢慢走完注册流程）。候选对按 |diff| 从小到大贪心一对一（一事件一人、
   一人一事件）。若某用户的最优 |diff| 被 ≥2 个事件并列取得 → 歧义，
   该用户整单跳过、记进报告待人工看，绝不猜。
   已禁用/已删除用户照常记录（薅羊毛的常被封，IP 更要留底）——本脚本
@@ -79,8 +80,8 @@ RETENTION_DAYS = 3                     # Bunny 可搜索日志保留期（官方
 PAGE_LIMIT = 10000                     # v2 单页上限（官方文档）
 
 # ---- 匹配口径 ----
-DIFF_MIN = -5                          # diff = created_at − 事件时间（秒）
-DIFF_MAX = 120
+DIFF_MIN = -60                         # diff = created_at − 事件时间（秒）
+DIFF_MAX = 900
 SETTING_KEY = "hajimi_reg_ip"
 
 # ---- 状态文件 ----
@@ -367,11 +368,11 @@ class DB:
 
     def candidate_users(self, range_start: float, range_end: float):
         """窗口内、尚无 hajimi_reg_ip 的用户行：
-        created_at ∈ [range_start − 5, range_end + 120]（匹配窗口的外延）。
+        created_at ∈ [range_start + DIFF_MIN, range_end + DIFF_MAX]（匹配窗口的外延）。
         不按 status / deleted_at 过滤：禁用、删除的用户照常记录。
         返回 (users, invalid_setting_ids)：setting 损坏的用户单独列出。"""
-        lo = int(range_start) + DIFF_MIN          # created_at 最小 = 事件最早 − 5
-        hi = int(range_end) + DIFF_MAX            # created_at 最大 = 事件最晚 + 120
+        lo = int(range_start) + DIFF_MIN          # created_at 最小 = 事件最早 + DIFF_MIN
+        hi = int(range_end) + DIFF_MAX            # created_at 最大 = 事件最晚 + DIFF_MAX
         rows = self.execute(
             "SELECT id, username, created_at, setting FROM users "
             "WHERE created_at >= ? AND created_at <= ? ORDER BY created_at, id",
@@ -567,8 +568,20 @@ def run(target: str, apply: bool, backfill: int, bunny_cfg: dict,
             log.info("unmatched-event | %s | ip=%s | path=%s",
                      iso_of(ev["ts"]), ev["ip"], ev["path"])
         for u in unmatched_users:
-            log.info("unmatched-user | user %s (id=%d) created_at=%d (%s)：窗口内无可对事件",
-                     u["username"], u["id"], u["created_at"], iso_of(u["created_at"]))
+            nearest = None
+            for ev in fresh_events:
+                d = u["created_at"] - ev["ts"]
+                if nearest is None or abs(d) < abs(nearest[0]):
+                    nearest = (d, ev)
+            if nearest is not None:
+                d, ev = nearest
+                log.info("unmatched-user | user %s (id=%d) created_at=%d (%s)：窗口内无可对事件；"
+                         "最近事件 %s ip=%s Δ=%+.1fs（窗口校准参考）",
+                         u["username"], u["id"], u["created_at"], iso_of(u["created_at"]),
+                         iso_of(ev["ts"]), ev["ip"], d)
+            else:
+                log.info("unmatched-user | user %s (id=%d) created_at=%d (%s)：窗口内无可对事件；本轮无事件可参考",
+                         u["username"], u["id"], u["created_at"], iso_of(u["created_at"]))
 
         log.info(
             "summary | days=%d skipped_days=%d | events=%d fresh=%d seen_skip=%d | "
