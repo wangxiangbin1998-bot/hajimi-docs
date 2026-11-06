@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>合伙人计划 · 哈吉米 API</title>
+<meta name="description" content="哈吉米 API 合伙人计划：邀请好友用 API，注册奖 + 充值返佣自动到账，返佣高达 10%。">
+<style>
+  :root{
+    --cream:#FFF6EC; --card:#FFFFFF; --main:#C05A33; --main-dark:#9A4525;
+    --ink:#3B2A20; --ink-soft:#7A6252; --line:#F0DFCE; --gold:#B97E2E;
+    --radius:18px; --shadow:0 6px 24px rgba(192,90,51,.10), 0 1px 4px rgba(59,42,32,.05);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--cream);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+    line-height:1.65;font-size:16px}
+  a{color:var(--main);text-decoration:none}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+
+  /* 顶栏 */
+  header{position:sticky;top:0;z-index:50;background:rgba(255,246,236,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .logo{font-weight:800;font-size:18px;color:var(--ink)}
+  .logo .brand{color:var(--main)}
+  .logo .sep{margin:0 8px;color:var(--ink-soft);font-weight:400}
+  .logo .page{font-weight:600;font-size:16px}
+  .nav-links a{margin-left:22px;font-size:15px;color:var(--ink);font-weight:600}
+  .nav-links a:hover{color:var(--main)}
+
+  /* 锚点节点导航（吸顶） */
+  .anchor-nav{position:sticky;top:60px;z-index:49;background:rgba(255,246,236,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .anchor-inner{display:flex;gap:10px;align-items:center;padding-top:10px;padding-bottom:10px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .anchor-inner::-webkit-scrollbar{display:none}
+  .anchor-inner a{flex:none;background:#fff;color:var(--ink);font-size:14px;font-weight:700;padding:7px 18px;border-radius:999px;border:1px solid #F0DFCE;box-shadow:0 1px 3px rgba(59,42,32,.05);transition:.15s}
+  .anchor-inner a:hover{background:var(--main);color:#fff;border-color:var(--main)}
+  section,#templates,#scripts{scroll-margin-top:126px}
+
+  /* 英雄区 */
+  .hero{text-align:center;padding:64px 0 46px}
+  .hero .paw{font-size:26px;letter-spacing:6px;opacity:.55}
+  .hero h1{font-size:40px;line-height:1.3;font-weight:900;margin:14px 0 16px}
+  .hero h1 em{font-style:normal;color:var(--main)}
+  .hero p{color:var(--ink-soft);font-size:17px;max-width:640px;margin:0 auto 30px}
+  .btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-block;padding:13px 30px;border-radius:999px;font-weight:700;font-size:16px;transition:.15s}
+  .btn-primary{background:var(--main);color:#fff;box-shadow:0 6px 18px rgba(192,90,51,.30)}
+  .btn-primary:hover{background:var(--main-dark)}
+  .btn-ghost{background:#fff;color:var(--main);border:2px solid var(--main)}
+  .btn-ghost:hover{background:#FFF0E2}
+  .hero-tags{margin-top:28px;color:var(--ink-soft);font-size:14px}
+  .hero-tags span{margin:0 8px;white-space:nowrap}
+
+  section{padding:38px 0}
+  .sec-title{font-size:27px;font-weight:900;text-align:center;margin-bottom:8px}
+  .sec-sub{text-align:center;color:var(--ink-soft);margin-bottom:30px;font-size:15px}
+
+  /* 卡片通用 */
+  .grid{display:grid;gap:18px}
+  .grid-2{grid-template-columns:1fr 1fr}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px;border:1px solid #FBEBD9}
+  .card h3{font-size:19px;font-weight:800;margin-bottom:6px}
+  .card h3 .tag{display:inline-block;vertical-align:2px;margin-left:8px;background:#FDEBD9;color:var(--main-dark);font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px}
+  .card p{color:var(--ink-soft);font-size:15px}
+  .card p b,.card li b{color:var(--ink)}
+  .card ul{list-style:none;margin-top:8px}
+  .card ul li{color:var(--ink-soft);font-size:15px;padding:3px 0 3px 18px;position:relative}
+  .card ul li::before{content:"";position:absolute;left:0;top:12px;width:7px;height:7px;border-radius:50%;background:var(--main);opacity:.55}
+  .money{color:var(--main);font-weight:800}
+
+  /* 阶梯表 */
+  table.tier{width:100%;border-collapse:collapse;margin-top:14px;font-size:15px}
+  table.tier th,table.tier td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line)}
+  table.tier th{color:var(--ink-soft);font-weight:600;font-size:13px}
+  table.tier td.rate{color:var(--main);font-weight:800;font-size:17px}
+  table.tier tr:last-child td{border-bottom:none}
+
+  /* 卖点 */
+  .points{grid-template-columns:repeat(3,1fr)}
+  .point{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;border:1px solid #FBEBD9}
+  .point .ic{font-size:24px}
+  .point h4{font-size:16px;font-weight:800;margin:8px 0 4px}
+  .point p{font-size:14px;color:var(--ink-soft)}
+
+  /* 工具包 */
+  .toolkit{background:linear-gradient(180deg,#FFF1DE, #FFE7CC);border:1px solid #F5D9B8;border-radius:24px;padding:34px 30px;box-shadow:var(--shadow)}
+  .tk-input{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 8px}
+  .tk-input input{flex:1;min-width:220px;padding:13px 16px;border:2px solid #EBCB9F;border-radius:12px;font-size:16px;background:#fff;color:var(--ink);outline:none}
+  .tk-input input:focus{border-color:var(--main)}
+  .tk-link{background:#fff;border:1px dashed #E3B98A;border-radius:12px;padding:12px 16px;font-size:15px;word-break:break-all;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .tk-link code{color:var(--main-dark);font-weight:700}
+  .copy-btn{flex:none;background:var(--main);color:#fff;border:none;border-radius:999px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer}
+  .copy-btn:hover{background:var(--main-dark)}
+  .copy-btn.done{background:#4C9A52}
+  .tk-hint{font-size:13px;color:var(--ink-soft);margin-top:8px}
+  .tpl-list{display:grid;gap:12px;margin-top:20px}
+  .tpl{background:#fff;border-radius:14px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start;border:1px solid #F3E3CB}
+  .tpl p{flex:1;font-size:15px;min-width:0;overflow-wrap:anywhere}
+  .tpl .scene{flex:none;font-size:12px;font-weight:700;color:var(--main-dark);background:#FDEBD9;border-radius:999px;padding:3px 10px;margin-top:2px}
+  .script-card{background:#fff;border-radius:14px;padding:20px;border:1px solid #F3E3CB;margin-top:14px}
+  .script-card h4{font-size:16px;font-weight:800;margin-bottom:8px}
+  .script-card ol{margin-left:20px;color:var(--ink-soft);font-size:15px}
+  .script-card .first{margin-top:10px;font-size:15px;background:#FFF6EC;border-radius:10px;padding:10px 14px}
+  .script-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+
+  /* 步骤 */
+  .steps{grid-template-columns:repeat(4,1fr)}
+  .step{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;text-align:center;border:1px solid #FBEBD9}
+  .step .num{width:38px;height:38px;line-height:38px;border-radius:50%;background:var(--main);color:#fff;font-weight:800;margin:0 auto 10px}
+  .step h4{font-size:16px;font-weight:800;margin-bottom:4px}
+  .step p{font-size:14px;color:var(--ink-soft)}
+
+  /* FAQ */
+  .faq{max-width:820px;margin:0 auto}
+  details{background:var(--card);border:1px solid #FBEBD9;border-radius:14px;box-shadow:var(--shadow);margin-bottom:12px;padding:4px 22px}
+  summary{cursor:pointer;font-weight:700;font-size:16px;padding:14px 0;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"＋";float:right;color:var(--main);font-weight:800}
+  details[open ] summary::after{content:"－"}
+  details p{color:var(--ink-soft);font-size:15px;padding:0 0 16px}
+
+  footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0 40px;text-align:center;color:var(--ink-soft);font-size:14px}
+  footer .paw{font-size:18px;opacity:.5;letter-spacing:5px;margin-bottom:8px}
+
+  .toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 22px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:99}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:760px){
+    .hero{padding:44px 0 34px}
+    .hero h1{font-size:30px}
+    .grid-2,.points,.steps{grid-template-columns:1fr}
+    .toolkit{padding:24px 18px}
+    .nav-links a{margin-left:14px;font-size:14px}
+    .logo .page{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo"><span class="brand">哈吉米 API</span><span class="sep">·</span><span class="page">合伙人计划</span></div>
+    <nav class="nav-links">
+      <a href="https://docs.hajimi.men">文档</a>
+      <a href="https://qm.qq.com/q/m6gVsCbSHQ">官方 QQ 群</a>
+    </nav>
+  </div>
+</header>
+
+<nav class="anchor-nav">
+  <div class="wrap anchor-inner">
+    <a href="#rewards">奖励制度</a>
+    <a href="#points">产品卖点</a>
+    <a href="#templates">评论模板</a>
+    <a href="#scripts">视频脚本</a>
+    <a href="#start">怎么开始</a>
+    <a href="#faq">常见问题</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- 英雄区 -->
+  <div class="hero">
+    <div class="paw">🐾 🐾</div>
+    <h1>邀请好友用 API，<em>返佣自动到账</em></h1>
+    <p>把你的邀请链接分享给需要用 AI 的朋友：他注册你得奖励，他充值你拿百分比返佣，每小时自动结算，不用记账、不用催账。</p>
+    <div class="btns">
+      <a class="btn btn-primary" href="#toolkit">拿到我的邀请链接</a>
+      <a class="btn btn-ghost" href="#rewards">查看奖励制度</a>
+    </div>
+    <div class="hero-tags"><span>注册奖 ¥2/人（限时）</span>·<span>充值返佣最高 10%</span>·<span>每小时自动结算</span></div>
+  </div>
+
+  <!-- 奖励制度 -->
+  <section id="rewards">
+    <h2 class="sec-title">奖励制度</h2>
+    <p class="sec-sub">四份奖励叠加拿：注册奖、充值返佣、里程碑红包、创作悬赏</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>注册奖<span class="tag">限时活动</span></h3>
+        <ul>
+          <li>新用户注册即得 <span class="money">¥1</span> 体验额度，先试后买</li>
+          <li>邀请人每邀请 1 位新用户，得 <span class="money">¥2</span>（限时活动，<b>2026-11-09 截止</b>）</li>
+          <li>活动结束后恢复常设：邀请 1 人得 <span class="money">¥1</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>里程碑红包<span class="tag">人工核发</span></h3>
+        <p>累计有效用户攒够档位，再领一份大红包：</p>
+        <ul>
+          <li>满 50 人 → <span class="money">¥88</span> 红包</li>
+          <li>满 100 人 → <span class="money">¥188</span> 红包</li>
+          <li>满 200 人 → <span class="money">¥388</span> 红包</li>
+          <li>在官方 QQ 群联系群主领取，核对后人工发放</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>充值返佣<span class="tag">核心奖励 · 自动结算</span></h3>
+      <p>被邀请人在<b>云猫寄售</b>购买兑换码、兑换入账后，按<b>实付金额</b>给你百分比返佣。<b>每小时自动结算</b>一次，佣金直接进钱包页的「累计奖励」，攒够了自己一键转入余额就能花。名下累计有效用户越多，比例越高：</p>
+      <table class="tier">
+        <tr><th>累计有效用户</th><th>返佣比例</th><th>举例：好友兑换 ¥100</th></tr>
+        <tr><td>0 – 49 人</td><td class="rate">5%</td><td>你得 ¥5</td></tr>
+        <tr><td>50 – 99 人</td><td class="rate">7%</td><td>你得 ¥7</td></tr>
+        <tr><td>100 – 199 人</td><td class="rate">8.5%</td><td>你得 ¥8.5</td></tr>
+        <tr><td>200 人以上</td><td class="rate">10%</td><td>你得 ¥10</td></tr>
+      </table>
+      <ul>
+        <li><b>有效用户</b>：被邀请人累计兑换金额满 <b>¥10</b>，才计为 1 个有效用户</li>
+        <li>只有<b>云猫寄售的兑换码兑换入账</b>算返佣，其他方式入账不计</li>
+        <li>退款的订单会在后续结算中把对应佣金<b>扣回</b>，账目笔笔对得上</li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>创作悬赏<span class="tag">分享也能赚钱</span></h3>
+      <p>在群里或各平台发布<b>真实使用分享</b>——评论、图文、短视频都行，内容真实、写清使用感受，经群主确认后发放奖励。具体金额以官方 QQ 群公告为准，写得好的还有额外加奖。</p>
+    </div>
+  </section>
+
+  <!-- 产品卖点 -->
+  <section id="points">
+    <h2 class="sec-title">为什么朋友愿意用</h2>
+    <p class="sec-sub">东西好用、价格实在，你分享出去才不尴尬</p>
+    <div class="grid points">
+      <div class="point"><div class="ic">🧩</div><h4>模型一站齐全</h4><p>OpenAI、Claude、Gemini、Grok、DeepSeek、GLM，主流模型一个站全有，不用东拼西凑开一堆账号。</p></div>
+      <div class="point"><div class="ic">💰</div><h4>价格打下来了</h4><p>分组倍率低至 0.08，同样的模型比官方直充便宜一大截，天天用也不心疼。</p></div>
+      <div class="point"><div class="ic">🔌</div><h4>主流客户端直连</h4><p>接口兼容 OpenAI 格式，常见的编程工具、聊天客户端填上地址和密钥就能用。</p></div>
+      <div class="point"><div class="ic">📖</div><h4>中文文档齐全</h4><p>从注册到接入一步步图文说明，新手照着做十分钟跑通，不用自己全网搜教程。</p></div>
+      <div class="point"><div class="ic">💬</div><h4>真人售后群</h4><p>官方 QQ 群 777457906，出问题群里喊一声就有人答，不怕买了没人管。</p></div>
+      <div class="point"><div class="ic">🎁</div><h4>先试后买</h4><p>新用户注册即送体验额度，好不好用先亲手试，觉得值再充值。</p></div>
+      <div class="point"><div class="ic">🏷️</div><h4>充值明码实价</h4><p>本站充值 1:1，充 ¥1 就得 $1，价格表上写多少就是多少。有的站充 ¥7 才得 $1，倍率标得再低，乘回人民币才是真价——比价认准到手价。</p></div>
+    </div>
+  </section>
+
+  <!-- 推广工具包 -->
+  <section id="toolkit">
+    <h2 class="sec-title">推广工具包</h2>
+    <p class="sec-sub">填上你的邀请码，邀请链接和全部文案自动换成你的，点一下就能复制去发</p>
+    <div class="toolkit">
+      <h3 style="font-size:18px;font-weight:800">第一步：填你的邀请码</h3>
+      <p style="color:var(--ink-soft);font-size:14px;margin-top:4px">邀请码在登录后的钱包页「推荐计划」里查看（就是你邀请链接 aff= 后面那串）。</p>
+      <div class="tk-input">
+        <input id="affInput" type="text" placeholder="在这里粘贴你的邀请码，例如 a1b2c3" autocomplete="off">
+      </div>
+      <div class="tk-link">
+        <code id="myLink">https://hajimi.men/register?aff=你的邀请码</code>
+        <button class="copy-btn" data-copy-target="myLink">复制链接</button>
+      </div>
+      <p class="tk-hint">还没填邀请码时，下面的文案里是样例链接；填完会自动全部替换成你的链接，直接复制就能发。</p>
+
+      <h3 id="templates" style="font-size:18px;font-weight:800;margin-top:28px">评论模板（点复制，粘贴就能发）</h3>
+      <div class="tpl-list" id="tplList"></div>
+
+      <h3 id="scripts" style="font-size:18px;font-weight:800;margin-top:30px">短视频脚本（照着拍就行）</h3>
+      <div id="scriptList"></div>
+    </div>
+  </section>
+
+  <!-- 怎么开始 -->
+  <section id="start">
+    <h2 class="sec-title">怎么开始</h2>
+    <p class="sec-sub">四步走，第一笔奖励最快一小时内到账</p>
+    <div class="grid steps">
+      <div class="step"><div class="num">1</div><h4>注册登录</h4><p>在哈吉米 API 注册账号（新号自带 ¥1 体验额度）。</p></div>
+      <div class="step"><div class="num">2</div><h4>拿到邀请链接</h4><p>在钱包页「推荐计划」复制邀请链接，或在本页工具包填邀请码生成。</p></div>
+      <div class="step"><div class="num">3</div><h4>分享出去</h4><p>去社群、评论区、朋友圈分享，用工具包的文案改一改就能发。</p></div>
+      <div class="step"><div class="num">4</div><h4>坐等到账</h4><p>奖励每小时自动结到钱包页「累计奖励」，一键转入余额使用。</p></div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <h2 class="sec-title">常见问题</h2>
+    <p class="sec-sub">先看这里，还不清楚去官方 QQ 群问群主</p>
+    <div class="faq">
+      <details open>
+        <summary>返佣到底怎么算？</summary>
+        <p>你邀请的人在云猫寄售买兑换码、兑换进他的账号后，按他实付的金额乘你的返佣比例算。比例看你名下累计有效用户数：0–49 人 5%，50–99 人 7%，100–199 人 8.5%，200 人以上 10%。比如好友兑换了 ¥50，你是 5% 档，就得 ¥2.5。本站充值 1:1，返佣按好友实付的人民币金额算，不打折。</p>
+      </details>
+      <details>
+        <summary>多久到账？</summary>
+        <p>系统每小时自动结算一趟，结完直接进你钱包页的「累计奖励」里。在钱包页点一下就能把累计奖励转入余额，转完马上能消费。</p>
+      </details>
+      <details>
+        <summary>什么算「有效用户」？</summary>
+        <p>被你邀请的人，累计兑换金额满 ¥10，才计为 1 个有效用户。只注册没充值的，只算注册奖，不计入有效用户和档位。</p>
+      </details>
+      <details>
+        <summary>哪些充值算返佣？</summary>
+        <p>只有在云猫寄售购买兑换码、并兑换入账的算。其他方式入账的额度不计返佣，买之前可以跟朋友说清从云猫店铺买。</p>
+      </details>
+      <details>
+        <summary>在哪里看我的奖励？</summary>
+        <p>登录后打开钱包页，看「推荐计划」板块：邀请链接、邀请人数和累计奖励都在那儿，返佣到账后累计奖励就会涨。</p>
+      </details>
+      <details>
+        <summary>被邀请人退款了怎么办？</summary>
+        <p>退款订单对应的返佣，会在后续结算里自动扣回。所以别帮人刷单套利，查出来奖励清零，得不偿失。</p>
+      </details>
+      <details>
+        <summary>奖励能提现吗？</summary>
+        <p>不能提现。累计奖励转入余额后只能在站内消费（抵扣 API 用量），里程碑红包和创作悬赏的发放方式以官方 QQ 群公告为准。</p>
+      </details>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="paw">🐾</div>
+  <div>哈吉米 API · 官方 QQ 群 <b>777457906</b> · <a href="https://docs.hajimi.men">使用文档</a> · <a href="https://hajimi.men">返回主站</a></div>
+</footer>
+
+<div class="toast" id="toast">已复制，去粘贴吧</div>
+
+<script>
+(function(){
+  var SAMPLE = "你的邀请码";
+  var templates = [
+    {scene:"写代码", text:"写代码的兄弟可以试试这个 API 中转，我现在日常跑量都走它，同样的模型比官方直充便宜不少，分组倍率最低 0.08。注册还送体验额度，先白嫖试试：{链接}"},
+    {scene:"长上下文", text:"有没有人跟我一样，聊天聊长了就怕断、怕涨价的？这个站长上下文用着挺稳，我一晚上连着聊都没中断过，价格还低。注册送体验金：{链接}"},
+    {scene:"写作办公", text:"最近写方案、改文案全靠 AI，量一大官方那价格真顶不住。换了这个中转站之后成本降了一大截，模型还全。需要的自取，注册有体验额度：{链接}"},
+    {scene:"学生党", text:"学生党福音：这个 API 站注册就送体验额度，写论文查资料做课程设计完全够用。后面要充值也不贵，倍率低至 0.08，链接放这：{链接}"},
+    {scene:"比官方价", text:"认真算过一笔账：同样的模型，官方按原价充，这个站走分组倍率最低只要 0.08，长期用下来差的可不是一点半点。先注册领体验额度自己对比：{链接}"},
+    {scene:"售后答疑", text:"之前用别的中转站，出了问题找不到人。这个站有官方 QQ 群 777457906，真人答疑，文档也是中文的，新手友好。注册送体验金：{链接}"},
+    {scene:"编程工具", text:"用编程工具接 AI 的注意了：这个站接口是 OpenAI 格式的，填地址和密钥就能直连，不用折腾转换。我已经跑了两周，很稳：{链接}"},
+    {scene:"模型齐全", text:"OpenAI、Claude、Gemini、Grok、DeepSeek、GLM 全在一个站，不用来回开账号切换了。一个密钥全搞定，注册还送体验额度：{链接}"},
+    {scene:"深夜赶稿", text:"昨晚赶稿赶到两点，全靠 AI 帮忙续命。用的是这个站，半夜也稳得很，没掉过链子。量大的朋友真的可以换，省钱：{链接}"},
+    {scene:"做副业", text:"做点 AI 相关小副业的，成本就是利润。这个中转站价格够低，我算过账才敢推荐。注册先领体验额度试水：{链接}"},
+    {scene:"怕被坑", text:"怕中转站跑路的我懂，所以先小额试。这个站注册送体验金，不花钱先试一周，觉得稳再充。我用了阵子了，放心：{链接}"},
+    {scene:"群友自来水", text:"纯自来水分享一个在用的 API 站：价格低、模型全、群里售后秒回。最近还有拉新活动，注册送额度，邀请人也有奖励，双赢：{链接}"}
+  ];
+  var scripts = [
+    { title:"脚本一：《同款模型，价格差多少》",
+      steps:["开头 3 秒：把官方充值页价格和本站分组倍率同屏对比，先抛数字钩子","列出 3 个常用模型，逐个算同一笔用量的两边花费","展示自己一周的实际用量账单，算出总共省了多少","结尾引导：注册链接在评论区，先领体验额度自己验"],
+      first:"口播首句：「同样的模型，我每个月少花了一大半——今天把账摊开给你看。」"},
+    { title:"脚本二：《长上下文聊天不断线实测》",
+      steps:["展示一段超长对话记录，滚动到底证明没断、没降智","讲清为什么便宜还能稳：分组倍率 + 多模型可选","现场发一条长消息，展示回复速度和完整度","结尾引导：链接在评论区，注册送体验额度，先聊一晚试试"],
+      first:"口播首句：「一段两万字的对话，从头聊到尾没断过，我用的是这个站。」"},
+    { title:"脚本三：《办公写作一天提效实录》",
+      steps:["快剪一天的工作流：写周报、改邮件、做表格总结，逐个演示 AI 出活","每个场景报一个时间对比：原来半小时，现在三分钟","算总账：一天省出两小时，接口成本只要几块钱","结尾引导：注册链接在评论区，先领体验额度跑一遍自己的活"],
+      first:"口播首句：「我把一天里最耗时间的三件办公活，全交给了 AI。」"}
+  ];
+
+  var input = document.getElementById('affInput');
+  var linkEl = document.getElementById('myLink');
+  var tplList = document.getElementById('tplList');
+  var scriptList = document.getElementById('scriptList');
+
+  function currentLink(){
+    var code = (input.value || '').trim();
+    return 'https://hajimi.men/register?aff=' + (code || SAMPLE);
+  }
+  function render(){
+    var link = currentLink();
+    linkEl.textContent = link;
+    var nodes = document.querySelectorAll('[data-tpl]');
+    for (var i=0;i<nodes.length;i++){
+      nodes[i].textContent = nodes[i].getAttribute('data-raw').split('{链接}').join(link);
+    }
+  }
+  function toast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 1600);
+  }
+  function copyText(text, btn){
+    function ok(){ if(btn){ btn.textContent='已复制 ✓'; btn.classList.add('done');
+      setTimeout(function(){ btn.textContent='一键复制'; btn.classList.remove('done'); },1600);} toast('已复制，去粘贴吧'); }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(ok, function(){ fallback(); });
+    } else { fallback(); }
+    function fallback(){
+      var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta);
+      ta.select(); try{ document.execCommand('copy'); ok(); }catch(e){ toast('复制失败，请长按手动复制'); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  templates.forEach(function(t){
+    var div=document.createElement('div'); div.className='tpl';
+    div.innerHTML='<span class="scene"></span><p data-tpl></p>';
+    div.querySelector('.scene').textContent=t.scene;
+    var p=div.querySelector('p'); p.setAttribute('data-raw', t.text);
+    var btn=document.createElement('button'); btn.className='copy-btn'; btn.type='button'; btn.textContent='一键复制';
+    btn.addEventListener('click', function(){ copyText(p.textContent, btn); });
+    div.appendChild(btn);
+    tplList.appendChild(div);
+  });
+  scripts.forEach(function(s){
+    var card=document.createElement('div'); card.className='script-card';
+    var raw = s.title + '\n' + s.steps.map(function(x,i){ return (i+1)+'. '+x; }).join('\n') + '\n' + s.first + '\n注册链接：{链接}';
+    card.innerHTML='<div class="script-head"><h4></h4></div><ol></ol><div class="first" data-tpl></div>';
+    card.querySelector('h4').textContent=s.title;
+    var ol=card.querySelector('ol');
+    s.steps.forEach(function(x){ var li=document.createElement('li'); li.textContent=x; ol.appendChild(li); });
+    var f=card.querySelector('.first'); f.textContent=s.first;
+    var btn=document.createElement('button'); btn.className='copy-btn'; btn.type='button'; btn.textContent='一键复制';
+    btn.addEventListener('click', function(){ copyText(raw.split('{链接}').join(currentLink()), btn); });
+    card.querySelector('.script-head').appendChild(btn);
+    scriptList.appendChild(card);
+  });
+
+  document.querySelector('[data-copy-target="myLink"]').addEventListener('click', function(){
+    copyText(currentLink(), this);
+  });
+  input.addEventListener('input', render);
+  render();
+})();
+</script>
+</body>
+</html>
