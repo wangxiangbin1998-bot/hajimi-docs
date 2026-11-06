@@ -158,7 +158,8 @@ class DB:
             self.conn.row_factory = sqlite3.Row
 
     def _sql(self, sql: str) -> str:
-        return sql.replace("?", "%s") if self.kind == "pg" else sql
+        # PG(psycopg):字面 % 须先转义为 %%,再把 ? 占位符换成 %s(顺序不可反)
+        return sql.replace("%", "%%").replace("?", "%s") if self.kind == "pg" else sql
 
     def query(self, sql: str, args=()):
         cur = self.conn.cursor()
