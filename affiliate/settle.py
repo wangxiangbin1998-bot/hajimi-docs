@@ -36,6 +36,22 @@
   AFFILIATE_BONUS_START / AFFILIATE_BONUS_END；不填则用常量默认
   （2026-11-10 00:00 至 2026-12-21 00:00，+08:00）。
 
+2026-11-08 晚修订（用户拍板，dsh 独立复核后修）：
+- 【孤儿校验】补发前校验邀请人用户行存在：不存在（inviter_id 指向
+  无此行）跳过该笔、告警、不写补发账本（留待后续轮次再评估）；
+  补发入账 UPDATE 后校验 affected rows 必须 =1，为 0 抛错整单回滚。
+- 【充值取数定死】累计付费里的 top_ups 只认 status=success 且
+  money>0 的订单、按 money（元）计；money<=0 或为空计 ¥0（原先
+  money 为 0 时拿 amount 当 quota 的回退分支已删，语义不可靠）。
+- 【四种不补】结算时点：邀请人已封禁（status=2）、被邀请人已封禁
+  （status=2）、邀请人已软删（deleted_at 非空）、自邀
+  （inviter_id == 被邀请人自身 id）——一律不补：跳过＋日志写明
+  原因＋不写补发账本行，后续轮次可再评估。补发后退款跌破 ¥3
+  不追回（维持原口径）；管理员号不特殊处理。
+- 【补发进统计】hajimi_aff 载荷新增 total_bonus_quota /
+  total_bonus_yuan（该邀请人累计补发额，源自补发账本按 inviter_id
+  聚合，与累计佣金分列），供被邀请人在统计里看到 ¥1 的来源。
+
 本版新增（2026-11-04，详见 SPEC.md「数据桥」与「防刷标记」两节）：
 - 统计发布（数据桥）：--apply 时把每个邀请人的返利统计（档位/有效用户/
   累计佣金/最近记录/邀请名单）合并写入其 users.setting 的 hajimi_aff 键，
@@ -468,6 +484,16 @@ def build_inviter_stats(db, inviter_id, invitees, invitee_paid, effective_count,
                 "rate": r["rate"],
             })
 
+    # 累计补发额（邀请奖励补发账本按邀请人聚合；表不存在或无记录为 0）
+    total_bonus_quota = 0
+    if db.has_table("affiliate_invite_bonus"):
+        bonus_row = db.execute(
+            "SELECT COALESCE(SUM(bonus_quota), 0) AS total FROM affiliate_invite_bonus "
+            "WHERE inviter_id = ?",
+            (inviter_id,),
+        ).fetchone()
+        total_bonus_quota = int(bonus_row["total"])
+
     invitee_list = []
     for u in invitees[:STATS_INVITEES_LIMIT]:
         paid = invitee_paid.get(u["id"], 0)
@@ -491,6 +517,8 @@ def build_inviter_stats(db, inviter_id, invitees, invitee_paid, effective_count,
         "next_tier": nxt,
         "total_commission_yuan": yuan2(total_commission_quota),
         "total_commission_quota": total_commission_quota,
+        "total_bonus_quota": total_bonus_quota,
+        "total_bonus_yuan": yuan2(total_bonus_quota),
         "records": records,
         "invitees": invitee_list,
     }
@@ -591,23 +619,37 @@ def run(target: str, apply: bool, denylist_path: str = None,
         for r in all_redemptions:
             invitee_paid[r["used_user_id"]] = invitee_paid.get(r["used_user_id"], 0) + r["quota"]
         if db.has_table("top_ups"):
+            # 充值取数定死（2026-11-08 站长批准）：只认实付 money>0、按元计；
+            # money<=0 或为空的订单计 ¥0（不再拿 amount 当 quota 回退）。
             for r in db.execute(
                 "SELECT user_id, amount, money FROM top_ups WHERE status = ?",
                 (TOPUP_OK_STATUS,),
             ).fetchall():
                 money = float(r["money"] or 0)
-                paid_q = int(round(money * QUOTA_PER_UNIT)) if money > 0 else int(r["amount"] or 0)
-                if paid_q > 0:
+                if money > 0:
+                    paid_q = int(round(money * QUOTA_PER_UNIT))
                     invitee_paid[r["user_id"]] = invitee_paid.get(r["user_id"], 0) + paid_q
 
         inviter_of = {}     # user_id -> inviter_id
         username_of = {}
         created_at_of = {}
-        users = db.execute("SELECT id, username, inviter_id, created_at FROM users").fetchall()
+        status_of = {}      # user_id -> status（表无此列时默认 1 正常）
+        deleted_of = {}     # user_id -> deleted_at（表无此列时默认 None 未删）
+        ucols = db.user_columns()
+        extra_cols = ""
+        if "status" in ucols:
+            extra_cols += ", status"
+        if "deleted_at" in ucols:
+            extra_cols += ", deleted_at"
+        users = db.execute(
+            f"SELECT id, username, inviter_id, created_at{extra_cols} FROM users"
+        ).fetchall()
         for u in users:
             inviter_of[u["id"]] = u["inviter_id"] or 0
             username_of[u["id"]] = u["username"]
             created_at_of[u["id"]] = u["created_at"] or 0
+            status_of[u["id"]] = u["status"] if "status" in ucols else 1
+            deleted_of[u["id"]] = u["deleted_at"] if "deleted_at" in ucols else None
 
         invitees_by_inviter = {}  # inviter_id -> [被邀请人行，按注册时间升序]
         for u in sorted(users, key=lambda x: (x["created_at"] or 0, x["id"])):
@@ -681,6 +723,8 @@ def run(target: str, apply: bool, denylist_path: str = None,
         # 默认 2026-11-10 00:00 至 2026-12-21 00:00，均 +08:00，即活动至
         # 2026-12-20 截止）、累计付费（全渠道口径）满 ¥3、且未补发过。
         # 每人只补一次。窗口可由 --bonus-start/--bonus-end 或同名环境变量覆盖。
+        # 资格筛（2026-11-08）：自邀/孤儿邀请人/邀请人封禁/被邀请人封禁/
+        # 邀请人软删 → 不补、不写账本，只记 invite-bonus-skip 日志。
         log.info("invite-bonus | 补发窗口：%s 至 %s（按被邀请人注册时间）",
                  fmt_ts_plus8(bonus_start), fmt_ts_plus8(bonus_end))
         bonus_paid_ids = db.bonus_invitee_ids()
@@ -696,6 +740,26 @@ def run(target: str, apply: bool, denylist_path: str = None,
             if created_at_of.get(invitee_id, 0) >= bonus_end:
                 continue
             if invitee_id in bonus_paid_ids:
+                continue
+            # ---- 补发资格筛（2026-11-08 站长批准）：命中任一情形不补，
+            # 只记日志说明原因、不写补发账本，后续轮次可再评估 ----
+            skip_reason = None
+            if inv == invitee_id:
+                skip_reason = "自邀（inviter_id == 被邀请人自身 id）"
+            elif inv not in username_of:
+                skip_reason = "邀请人用户行不存在（孤儿邀请人）"
+            elif status_of.get(inv) == 2:
+                skip_reason = "邀请人已封禁（status=2）"
+            elif status_of.get(invitee_id) == 2:
+                skip_reason = "被邀请人已封禁（status=2）"
+            elif deleted_of.get(inv):
+                skip_reason = "邀请人已软删（deleted_at 非空）"
+            if skip_reason:
+                log.warning(
+                    "invite-bonus-skip | invitee %s (id=%d) | inviter id=%d | 不补发：%s"
+                    "（不写补发账本，后续轮次再评估）",
+                    username_of.get(invitee_id, "?"), invitee_id, inv, skip_reason,
+                )
                 continue
             bonus_due.append((invitee_id, inv, paid))
         bonus_due.sort(key=lambda x: x[0])
@@ -757,6 +821,13 @@ def run(target: str, apply: bool, denylist_path: str = None,
                     "aff_history = aff_history + ? WHERE id = ?",
                     (bonus_total, bonus_total, inv),
                 )
+                # 回读校验（2026-11-08 修）：邀请人行不存在时 UPDATE 命中
+                # 0 行、钱会无声蒸发——影响行数 != 1 直接抛错整单回滚。
+                if db.cur.rowcount != 1:
+                    raise RuntimeError(
+                        f"补发入账失败：inviter id={inv} 的 aff_quota 更新"
+                        f"影响行数 {db.cur.rowcount} != 1，整单回滚"
+                    )
             # ---- 统计发布：与结算同一事务，失败整单回滚 ----
             ledger_inviters = {
                 r["inviter_id"]
