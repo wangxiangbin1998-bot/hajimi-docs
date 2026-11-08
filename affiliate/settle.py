@@ -12,10 +12,29 @@
 - 不冻结，入账即结：每次运行把全部未结算记录一次结清
 - 阶梯比例按邀请人名下「累计有效用户数」定档：
   0-49 人 5%，50-99 人 7%，100-199 人 8.5%，200+ 人 10%
-  有效用户 = 该邀请人名下、累计兑换云猫码面额 >= 10 元的被邀请人
+  有效用户 = 该邀请人名下、累计兑换云猫码面额 >= 3 元的被邀请人
 - 佣金写入邀请人 users.aff_quota 并同步 aff_history（仿原生邀请账本）
 - 幂等：自建账本表 affiliate_settlements，redemption_id 唯一键，
   已结算的兑换码永不重复结算
+
+2026-11-07 晚修订（用户拍板）：
+- 有效用户口径放宽：被邀请人累计付费改按全渠道算——全部批次兑换码
+  （不限「云猫」前缀）的兑换面额 + 在线充值成功订单（top_ups，
+  status=success）的实付金额，合计 >= ¥3 即有效。此前页面写「累计
+  充值满 ¥3」、引擎只认云猫，两边对不齐，现按页面口径改引擎。
+  计佣基数不变：返佣仍只结云猫批次兑换码。统计发布（hajimi_aff）
+  里的 redeemed_yuan / effective 同步改按全渠道累计付费。
+- 新增邀请奖励补发：配合 11-10 邀请口径切换（原生 QuotaForInviter
+  改 0）。活动窗口 2026-11-10 至 2026-12-20（按被邀请人注册时间，
+  即注册时间 >= 2026-11-10 00:00 且 < 2026-12-21 00:00，+08:00）
+  且累计付费（同上口径）满 ¥3 时，本引擎给其邀请人补发 ¥1，进
+  aff_quota 与 aff_history（与原生注册奖励同落点）。每名被邀请人
+  只补一次，账本表 affiliate_invite_bonus 以 invitee_id 唯一键防重。
+  切换前注册的被邀请人不补（其邀请人已按当时规则拿过原生奖励）；
+  活动截止后注册的也不补。
+  补发窗口可覆盖：--bonus-start / --bonus-end（epoch 秒）或环境变量
+  AFFILIATE_BONUS_START / AFFILIATE_BONUS_END；不填则用常量默认
+  （2026-11-10 00:00 至 2026-12-21 00:00，+08:00）。
 
 本版新增（2026-11-04，详见 SPEC.md「数据桥」与「防刷标记」两节）：
 - 统计发布（数据桥）：--apply 时把每个邀请人的返利统计（档位/有效用户/
@@ -68,7 +87,12 @@ except ImportError:  # pragma: no cover
 
 QUOTA_PER_UNIT = 500000          # 500000 额度 = ¥1
 NAME_PREFIX = "云猫"              # 云猫批次识别前缀（唯一识别依据）
-EFFECTIVE_THRESHOLD_QUOTA = 10 * QUOTA_PER_UNIT  # 有效用户门槛：累计面额 >= ¥10
+EFFECTIVE_THRESHOLD_QUOTA = 3 * QUOTA_PER_UNIT  # 有效用户门槛：累计付费 >= ¥3
+TOPUP_OK_STATUS = "success"        # 在线充值计入「累计付费」的状态（top_ups.status）
+# ---- 邀请奖励补发（2026-11-07 定，配合 11-10 邀请口径切换）----
+INVITE_BONUS_QUOTA = 1 * QUOTA_PER_UNIT   # 补发金额：¥1
+INVITE_BONUS_START = 1794240000           # 2026-11-10 00:00:00 +08:00；此后注册的被邀请人才适用补发
+INVITE_BONUS_END = 1797782400             # 2026-12-21 00:00:00 +08:00；活动至 2026-12-20 截止，注册时间须 < 此值
 TIERS = [                        # (累计有效用户下限, 比例)，从高到低匹配
     (200, 0.10),
     (100, 0.085),
@@ -124,6 +148,29 @@ LEDGER_DDL = {
     """,
 }
 
+BONUS_LEDGER_DDL = {
+    "sqlite": """
+        CREATE TABLE IF NOT EXISTS affiliate_invite_bonus (
+            id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+            invitee_id         INTEGER NOT NULL UNIQUE,
+            inviter_id         INTEGER NOT NULL,
+            bonus_quota        INTEGER NOT NULL,
+            invitee_paid_quota INTEGER NOT NULL,
+            created_at         INTEGER NOT NULL
+        )
+    """,
+    "pg": """
+        CREATE TABLE IF NOT EXISTS affiliate_invite_bonus (
+            id                 BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+            invitee_id         BIGINT NOT NULL UNIQUE,
+            inviter_id         BIGINT NOT NULL,
+            bonus_quota        BIGINT NOT NULL,
+            invitee_paid_quota BIGINT NOT NULL,
+            created_at         BIGINT NOT NULL
+        )
+    """,
+}
+
 log = logging.getLogger("affiliate-settle")
 
 
@@ -153,6 +200,23 @@ def yuan(quota: int) -> float:
 
 def yuan2(quota: int) -> float:
     return round(quota / QUOTA_PER_UNIT, 2)
+
+
+def fmt_ts_plus8(ts: int) -> str:
+    """epoch 秒 -> 'YYYY-MM-DD HH:MM +08'（补发窗口按 +08:00 口径展示）。"""
+    return time.strftime("%Y-%m-%d %H:%M +08", time.gmtime(ts + 8 * 3600))
+
+
+def _parse_env_int(name: str):
+    """读整数环境变量：未设返回 None；非法值记错并返回 EXIT_USAGE 哨兵。"""
+    raw = os.environ.get(name)
+    if raw is None or raw.strip() == "":
+        return None
+    try:
+        return int(raw)
+    except ValueError:
+        log.error("环境变量 %s 不是合法整数：%r", name, raw)
+        return EXIT_USAGE
 
 
 def mask_target(target: str) -> str:
@@ -253,6 +317,38 @@ class DB:
         ).fetchone()
         return int(row["n"]), int(row["total"])
 
+    def has_table(self, name: str) -> bool:
+        """表是否存在（name 只来自本脚本内部常量，非外部输入）。"""
+        if self.kind == "pg":
+            row = self.execute(
+                f"SELECT to_regclass('public.{name}') IS NOT NULL AS ok"
+            ).fetchone()
+            return bool(row["ok"])
+        row = self.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+            (name,),
+        ).fetchone()
+        return row is not None
+
+    def bonus_invitee_ids(self):
+        """已补发过邀请奖励的被邀请人 id 集合（补发账本不存在时为空集）。"""
+        if not self.has_table("affiliate_invite_bonus"):
+            return set()
+        return {
+            r["invitee_id"]
+            for r in self.execute("SELECT invitee_id FROM affiliate_invite_bonus").fetchall()
+        }
+
+    def bonus_stats(self):
+        """补发账本当前计数：(行数, 补发总额 quota)。表不存在返回 (0, 0)。"""
+        if not self.has_table("affiliate_invite_bonus"):
+            return 0, 0
+        row = self.execute(
+            "SELECT COUNT(*) AS n, COALESCE(SUM(bonus_quota), 0) AS total "
+            "FROM affiliate_invite_bonus"
+        ).fetchone()
+        return int(row["n"]), int(row["total"])
+
     def user_columns(self):
         """users 表的列名集合（防刷同 IP 检查用来探测注册 IP 字段）。"""
         if self.kind == "pg":
@@ -331,9 +427,10 @@ def collect_fraud_flags(db, users, denylist_ids, per_inviter, username_of, now):
 
 # ================= 统计发布（数据桥） =================
 
-def build_inviter_stats(db, inviter_id, invitees, invitee_face, effective_count, username_of, now):
+def build_inviter_stats(db, inviter_id, invitees, invitee_paid, effective_count, username_of, now):
     """组装一个邀请人的 hajimi_aff 统计载荷。
-    invitees: 该邀请人名下全部被邀请人行（按注册时间升序）。"""
+    invitees: 该邀请人名下全部被邀请人行（按注册时间升序）。
+    invitee_paid: invitee_id -> 全渠道累计付费 quota（兑换面额 + 充值实付折算）。"""
     eff = effective_count.get(inviter_id, 0)
     tname, rate, nxt = tier_info(eff)
 
@@ -373,13 +470,13 @@ def build_inviter_stats(db, inviter_id, invitees, invitee_face, effective_count,
 
     invitee_list = []
     for u in invitees[:STATS_INVITEES_LIMIT]:
-        face = invitee_face.get(u["id"], 0)
+        paid = invitee_paid.get(u["id"], 0)
         comm_quota, last_comm_at = invitee_commission.get(u["id"], (0, 0))
         invitee_list.append({
             "username": u["username"],
             "created_at": int(u["created_at"] or 0),
-            "redeemed_yuan": yuan2(face),
-            "effective": face >= EFFECTIVE_THRESHOLD_QUOTA,
+            "redeemed_yuan": yuan2(paid),
+            "effective": paid >= EFFECTIVE_THRESHOLD_QUOTA,
             "commission_yuan": yuan2(comm_quota),
             "last_commission_at": last_comm_at,
         })
@@ -399,7 +496,7 @@ def build_inviter_stats(db, inviter_id, invitees, invitee_face, effective_count,
     }
 
 
-def publish_stats(db, invitees_by_inviter, ledger_inviters, invitee_face,
+def publish_stats(db, invitees_by_inviter, ledger_inviters, invitee_paid,
                   effective_count, username_of, now):
     """把统计合并写入每个邀请人的 users.setting[hajimi_aff]。
     返回 (已发布人数, 跳过人数)。setting 解析失败的用户跳过并告警——
@@ -426,7 +523,7 @@ def publish_stats(db, invitees_by_inviter, ledger_inviters, invitee_face,
                 continue
             obj = parsed
         obj[STATS_KEY] = build_inviter_stats(
-            db, inv, invitees_by_inviter.get(inv, []), invitee_face,
+            db, inv, invitees_by_inviter.get(inv, []), invitee_paid,
             effective_count, username_of, now,
         )
         db.execute(
@@ -437,7 +534,12 @@ def publish_stats(db, invitees_by_inviter, ledger_inviters, invitee_face,
     return published, skipped
 
 
-def run(target: str, apply: bool, denylist_path: str = None) -> int:
+def run(target: str, apply: bool, denylist_path: str = None,
+        bonus_start: int = None, bonus_end: int = None) -> int:
+    if bonus_start is None:
+        bonus_start = INVITE_BONUS_START
+    if bonus_end is None:
+        bonus_end = INVITE_BONUS_END
     db = DB(target)
     try:
         mode = "正式结算 (--apply)" if apply else "影子模式（只算账，不写库）"
@@ -454,6 +556,9 @@ def run(target: str, apply: bool, denylist_path: str = None) -> int:
             n0, total0 = db.ledger_stats()
             log.info("[ledger-backup] apply 前账本：rows=%d total_commission_quota=%d（¥%.2f）",
                      n0, total0, yuan(total0))
+            bn0, btotal0 = db.bonus_stats()
+            log.info("[bonus-backup] apply 前补发账本：rows=%d total_bonus_quota=%d（¥%.2f）",
+                     bn0, btotal0, yuan(btotal0))
 
         settled_ids = set()
         if db.has_ledger():
@@ -473,9 +578,27 @@ def run(target: str, apply: bool, denylist_path: str = None) -> int:
             (NAME_PREFIX + "%",),
         ).fetchall()
 
-        invitee_face = {}   # invitee_id -> 累计云猫面额 quota
-        for r in all_yunmao:
-            invitee_face[r["used_user_id"]] = invitee_face.get(r["used_user_id"], 0) + r["quota"]
+        # 全部渠道累计付费（有效用户口径，2026-11-07 改定）：全部批次
+        # 兑换码的兑换面额 + 在线充值成功订单的实付金额，不再只认云猫。
+        invitee_paid = {}   # invitee_id -> 累计付费 quota（充值按实付元 × QUOTA_PER_UNIT 折算）
+        all_redemptions = db.execute(
+            """
+            SELECT quota, used_user_id
+            FROM redemptions
+            WHERE status = 3 AND redeemed_time > 0 AND used_user_id > 0
+            """
+        ).fetchall()
+        for r in all_redemptions:
+            invitee_paid[r["used_user_id"]] = invitee_paid.get(r["used_user_id"], 0) + r["quota"]
+        if db.has_table("top_ups"):
+            for r in db.execute(
+                "SELECT user_id, amount, money FROM top_ups WHERE status = ?",
+                (TOPUP_OK_STATUS,),
+            ).fetchall():
+                money = float(r["money"] or 0)
+                paid_q = int(round(money * QUOTA_PER_UNIT)) if money > 0 else int(r["amount"] or 0)
+                if paid_q > 0:
+                    invitee_paid[r["user_id"]] = invitee_paid.get(r["user_id"], 0) + paid_q
 
         inviter_of = {}     # user_id -> inviter_id
         username_of = {}
@@ -492,10 +615,10 @@ def run(target: str, apply: bool, denylist_path: str = None) -> int:
             if inv:
                 invitees_by_inviter.setdefault(inv, []).append(u)
 
-        effective_count = {}  # inviter_id -> 累计有效用户数
-        for invitee_id, face in invitee_face.items():
+        effective_count = {}  # inviter_id -> 累计有效用户数（按全渠道累计付费判）
+        for invitee_id, paid in invitee_paid.items():
             inv = inviter_of.get(invitee_id, 0)
-            if inv and face >= EFFECTIVE_THRESHOLD_QUOTA:
+            if inv and paid >= EFFECTIVE_THRESHOLD_QUOTA:
                 effective_count[inv] = effective_count.get(inv, 0) + 1
 
         pending = [r for r in all_yunmao if r["id"] not in settled_ids]
@@ -518,7 +641,7 @@ def run(target: str, apply: bool, denylist_path: str = None) -> int:
             slot["items"].append((r["id"], invitee_id, r["quota"], commission))
 
         # ---------- 报表（逐笔一行 + 汇总） ----------
-        log.info("口径：仅云猫兑换码 | 基数=面额 | 已结算跳过 %d 笔", len(settled_ids))
+        log.info("口径：计佣仅云猫兑换码（基数=面额）| 有效用户=全渠道兑换+充值累计满 ¥3 | 已结算跳过 %d 笔", len(settled_ids))
         total_face = total_comm = total_items = 0
         for inv, slot in sorted(per_inviter.items()):
             total_face += slot["face_quota"]
@@ -553,9 +676,44 @@ def run(target: str, apply: bool, denylist_path: str = None) -> int:
         if not real_flags:
             log.info("flag | 无异常标记")
 
+        # ---------- 邀请奖励补发（待补发清单，两种模式都报） ----------
+        # 适用：被邀请人注册时间在活动窗口内（>= bonus_start 且 < bonus_end，
+        # 默认 2026-11-10 00:00 至 2026-12-21 00:00，均 +08:00，即活动至
+        # 2026-12-20 截止）、累计付费（全渠道口径）满 ¥3、且未补发过。
+        # 每人只补一次。窗口可由 --bonus-start/--bonus-end 或同名环境变量覆盖。
+        log.info("invite-bonus | 补发窗口：%s 至 %s（按被邀请人注册时间）",
+                 fmt_ts_plus8(bonus_start), fmt_ts_plus8(bonus_end))
+        bonus_paid_ids = db.bonus_invitee_ids()
+        bonus_due = []   # (invitee_id, inviter_id, paid_quota)
+        for invitee_id, paid in invitee_paid.items():
+            if paid < EFFECTIVE_THRESHOLD_QUOTA:
+                continue
+            inv = inviter_of.get(invitee_id, 0)
+            if not inv:
+                continue
+            if created_at_of.get(invitee_id, 0) < bonus_start:
+                continue
+            if created_at_of.get(invitee_id, 0) >= bonus_end:
+                continue
+            if invitee_id in bonus_paid_ids:
+                continue
+            bonus_due.append((invitee_id, inv, paid))
+        bonus_due.sort(key=lambda x: x[0])
+        for invitee_id, inv, paid in bonus_due:
+            log.info(
+                "invite-bonus | inviter %s (id=%d) | invitee %s (id=%d) 累计付费 ¥%.2f | 待补发 ¥%.2f",
+                username_of.get(inv, "?"), inv,
+                username_of.get(invitee_id, "?"), invitee_id,
+                yuan(paid), yuan(INVITE_BONUS_QUOTA),
+            )
+        log.info(
+            "invite-bonus-summary | 待补发 %d 人 | 合计 ¥%.2f | 历史已补发 %d 人",
+            len(bonus_due), yuan(len(bonus_due) * INVITE_BONUS_QUOTA), len(bonus_paid_ids),
+        )
+
         if not apply:
             would_publish = len(set(invitees_by_inviter.keys()))
-            log.info("影子模式结束：未写账本、未改 aff_quota、未发布统计（--apply 时将为 %d 个邀请人发布 hajimi_aff 统计）。",
+            log.info("影子模式结束：未写账本、未改 aff_quota、未补发邀请奖励、未发布统计（--apply 时将为 %d 个邀请人发布 hajimi_aff 统计）。",
                      would_publish)
             return EXIT_OK
 
@@ -565,6 +723,7 @@ def run(target: str, apply: bool, denylist_path: str = None) -> int:
         now = int(time.time())
         try:
             db.execute(LEDGER_DDL[db.kind])
+            db.execute(BONUS_LEDGER_DDL[db.kind])
             for inv, slot in per_inviter.items():
                 for rid, invitee_id, face, comm in slot["items"]:
                     db.execute(
@@ -580,13 +739,31 @@ def run(target: str, apply: bool, denylist_path: str = None) -> int:
                     "aff_history = aff_history + ? WHERE id = ?",
                     (slot["commission_quota"], slot["commission_quota"], inv),
                 )
+            # ---- 邀请奖励补发：与佣金同一事务，账本防重 ----
+            bonus_by_inviter = {}
+            for invitee_id, inv, paid in bonus_due:
+                db.execute(
+                    """
+                    INSERT INTO affiliate_invite_bonus
+                        (invitee_id, inviter_id, bonus_quota, invitee_paid_quota, created_at)
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (invitee_id, inv, INVITE_BONUS_QUOTA, paid, now),
+                )
+                bonus_by_inviter[inv] = bonus_by_inviter.get(inv, 0) + INVITE_BONUS_QUOTA
+            for inv, bonus_total in bonus_by_inviter.items():
+                db.execute(
+                    "UPDATE users SET aff_quota = aff_quota + ?, "
+                    "aff_history = aff_history + ? WHERE id = ?",
+                    (bonus_total, bonus_total, inv),
+                )
             # ---- 统计发布：与结算同一事务，失败整单回滚 ----
             ledger_inviters = {
                 r["inviter_id"]
                 for r in db.execute("SELECT DISTINCT inviter_id FROM affiliate_settlements").fetchall()
             }
             published, pub_skipped = publish_stats(
-                db, invitees_by_inviter, ledger_inviters, invitee_face,
+                db, invitees_by_inviter, ledger_inviters, invitee_paid,
                 effective_count, username_of, now,
             )
             db.conn.commit()
@@ -598,6 +775,10 @@ def run(target: str, apply: bool, denylist_path: str = None) -> int:
                  total_items, n1, total1)
         log.info("stats-publish | 已发布 %d 个邀请人的 hajimi_aff 统计（跳过 %d 个）",
                  published, pub_skipped)
+        bn1, btotal1 = db.bonus_stats()
+        log.info("invite-bonus | 本轮补发 %d 人（¥%.2f）| 补发账本现状：rows=%d total_bonus_quota=%d（¥%.2f）",
+                 len(bonus_due), yuan(len(bonus_due) * INVITE_BONUS_QUOTA),
+                 bn1, btotal1, yuan(btotal1))
         return EXIT_OK
     finally:
         db.close()
@@ -619,6 +800,10 @@ def main() -> int:
                     help="单实例锁文件路径（默认 SQLite: <db>.lock，PG: /tmp/affiliate-settle.lock）")
     ap.add_argument("--denylist", default=None,
                     help="黑名单文件路径（默认读环境变量 AFFILIATE_DENYLIST，再默认脚本同目录 denylist.txt）")
+    ap.add_argument("--bonus-start", type=int, default=None,
+                    help="邀请奖励补发窗口起点（epoch 秒；默认 2026-11-10 00:00 +08:00）")
+    ap.add_argument("--bonus-end", type=int, default=None,
+                    help="邀请奖励补发窗口终点（epoch 秒；默认 2026-12-21 00:00 +08:00）")
     args = ap.parse_args()
 
     target = args.db or os.environ.get("AFFILIATE_DSN")
@@ -647,8 +832,18 @@ def main() -> int:
         log.error(str(e))
         return EXIT_USAGE
 
+    # 补发窗口：命令行优先，其次环境变量，最后用常量默认；非法环境变量直接退出
+    bonus_start = args.bonus_start
+    if bonus_start is None:
+        bonus_start = _parse_env_int("AFFILIATE_BONUS_START")
+    bonus_end = args.bonus_end
+    if bonus_end is None:
+        bonus_end = _parse_env_int("AFFILIATE_BONUS_END")
+    if bonus_start is EXIT_USAGE or bonus_end is EXIT_USAGE:
+        return EXIT_USAGE
+
     try:
-        return run(target, args.apply, denylist_path)
+        return run(target, args.apply, denylist_path, bonus_start, bonus_end)
     except Exception:
         log.exception("结算失败：事务已回滚，未写入任何数据；不重试，等下一次调度")
         return EXIT_ERROR
