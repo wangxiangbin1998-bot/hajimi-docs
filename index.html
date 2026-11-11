@@ -502,6 +502,9 @@ cc-switch update                           # 更新自身
 <td>模型广场国模分组的模型名</td>
 </tr>
 </tbody></table>
+<blockquote>
+<p><strong>注意：带不带 <code>/v1</code> 按上表来</strong>——GPT、国产模型两行要带，漏了会连不上；Claude 那行不要加，加了反而报错。</p>
+</blockquote>
 <ol start="4">
 <li>API Key 粘贴对应密钥，保存</li>
 <li>回主界面，在模型选择里选刚配好的模型开始用</li>
@@ -530,6 +533,11 @@ cc-switch update                           # 更新自身
 <li>高级配置：按所选模型实际能力勾选（支持工具调用、思考模式的就勾上，其余保持默认）</li>
 </ul>
 </li>
+</ol>
+<blockquote>
+<p><strong>注意：地址里的 <code>/v1</code> 不能省</strong>——照上面原样填，漏了会连不上、或者只回空消息（今晚就有用户漏了它折腾半天）。</p>
+</blockquote>
+<ol start="5">
 <li>点右下角「保存」（配置会写进本地 <code>~/.workbuddy/models.json</code>）</li>
 <li>回到任务对话界面，点输入框旁的模型选择器，选刚配的模型，发一条消息，能正常回复即接入成功</li>
 </ol>
@@ -611,6 +619,9 @@ openclaw tui
 <td>留空，不用填</td>
 </tr>
 </tbody></table>
+<blockquote>
+<p><strong>注意：地址里的 <code>/v1</code> 不能省</strong>——照上面原样填，漏了会连不上、或者只回空消息（今晚就有用户漏了它折腾半天）。</p>
+</blockquote>
 <p>填的时候看一眼界面下方实时拼出来的完整地址，应该是 <code>https://hajimi.men/v1/chat/completions</code>，对不上就是主机那栏填错了。</p>
 <ol start="5">
 <li>添加模型：在「模型」区域点「获取」，会自动拉出本站的模型列表，勾选要用的；也可以点「新建」手动填模型名（模型名从本站「模型广场」里复制，一字别差）。支持识图的模型，点它右侧的齿轮，把「视觉」能力勾上，不然发图片会报错</li>
@@ -658,6 +669,9 @@ openclaw tui
 <td>你在本站建的密钥</td>
 </tr>
 </tbody></table>
+<blockquote>
+<p><strong>注意：地址里的 <code>/v1</code> 不能省</strong>——照上面原样填，漏了会连不上、或者只回空消息（今晚就有用户漏了它折腾半天）。</p>
+</blockquote>
 <p>注意端点<strong>只填到 <code>/v1</code> 为止</strong>，不要自己再加 <code>/chat/completions</code>，酒馆会自己拼。</p>
 <ol start="5">
 <li>点「连接」，状态变绿色 / 显示 Valid 就是通了</li>
@@ -699,6 +713,9 @@ openclaw tui
 <td><code>https://hajimi.men/v1</code></td>
 </tr>
 </tbody></table>
+<blockquote>
+<p><strong>注意：地址里的 <code>/v1</code> 不能省</strong>——照上面原样填，漏了会连不上、或者只回空消息（今晚就有用户漏了它折腾半天）。</p>
+</blockquote>
 <ol start="5">
 <li>点「获取模型列表」，在弹出的列表里把要用的模型点 <code>+</code> 加入（<strong>没加入的模型不会出现在选择器里</strong>，这步别漏）</li>
 <li>点「检测」，随便选一个模型，显示成功即通</li>
@@ -746,6 +763,9 @@ openclaw tui
 <td>你在本站建的密钥</td>
 </tr>
 </tbody></table>
+<blockquote>
+<p><strong>注意：地址里的 <code>/v1</code> 不能省</strong>——照上面原样填，漏了会连不上、或者只回空消息（今晚就有用户漏了它折腾半天）。</p>
+</blockquote>
 <ol start="4">
 <li>点「获取模型」，在列表里把要用的模型<strong>打开启用</strong></li>
 <li>回对话页，在顶部选好模型和助手，开聊</li>
@@ -791,6 +811,9 @@ openclaw tui
 <td>你在本站建的密钥</td>
 </tr>
 </tbody></table>
+<blockquote>
+<p><strong>注意：地址里的 <code>/v1</code> 不能省</strong>——照上面原样填，漏了会连不上、或者只回空消息（今晚就有用户漏了它折腾半天）。</p>
+</blockquote>
 <ol start="4">
 <li>「使用 Response API」开关<strong>保持关闭</strong>（默认就是关的），本站用默认接口即可</li>
 <li>保存后，在提供商页面底部进「模型」，展开可用模型列表，把要用的模型勾上；也可以手动添加，模型 ID 要和本站「模型广场」里的一字不差</li>
@@ -995,6 +1018,9 @@ base_url = &quot;https://hajimi.men/v1&quot;
 wire_api = &quot;responses&quot;
 requires_openai_auth = true
 </code></pre>
+<blockquote>
+<p><strong>注意：地址里的 <code>/v1</code> 不能省</strong>——照上面原样填，漏了会连不上、或者只回空消息（今晚就有用户漏了它折腾半天）。</p>
+</blockquote>
 <p>同目录的 <code>AGENTS.md</code> 是 Codex 的全局提示词文件，没有就新建，写进去的规则对所有项目生效，例如：</p>
 <pre><code class="language-markdown"># 全局工作指南
 - 回答必须使用中文
@@ -1042,6 +1068,11 @@ web_search_request = true
 <li>Model ID：填模型广场里国模分组的模型名（以广场实时展示为准）</li>
 </ul>
 </li>
+</ol>
+<blockquote>
+<p><strong>注意：地址里的 <code>/v1</code> 不能省</strong>——照上面原样填，漏了会连不上、或者只回空消息（今晚就有用户漏了它折腾半天）。</p>
+</blockquote>
+<ol start="4">
 <li>点 Done 保存，发一句话测试</li>
 </ol>
 <h2>通用填法（其他工具照抄这张表）</h2>
