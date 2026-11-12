@@ -614,7 +614,7 @@ openclaw tui
 </tr>
 <tr>
 <td>API 主机</td>
-<td><code>https://hajimi.men/v1</code></td>
+<td><code>https://hajimi.men</code></td>
 </tr>
 <tr>
 <td>API 路径</td>
@@ -622,7 +622,7 @@ openclaw tui
 </tr>
 </tbody></table>
 <blockquote>
-<p><strong>注意：地址里的 <code>/v1</code> 不能省</strong>——照上面原样填，漏了会连不上、或者只回空消息（今晚就有用户漏了它折腾半天）。</p>
+<p><strong>注意：主机只填到域名为止，<code>/v1</code> 不用自己填</strong>——Chatbox 会自己把 <code>/v1</code> 补上；要是把 <code>/v1</code> 也填进主机，拼出来会变成 <code>/v1/v1</code>，反而连不上。</p>
 </blockquote>
 <p>填的时候看一眼界面下方实时拼出来的完整地址，应该是 <code>https://hajimi.men/v1/chat/completions</code>，对不上就是主机那栏填错了。</p>
 <ol start="5">
