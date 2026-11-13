@@ -103,9 +103,12 @@
 </tr>
 <tr>
 <td>接口地址（填进各种工具里的）</td>
-<td>Claude 类工具填 <code>https://hajimi.men</code>；OpenAI 兼容工具填 <code>https://hajimi.men/v1</code></td>
+<td>Claude 类工具填 <code>https://api.hajimi.men</code>；OpenAI 兼容工具填 <code>https://api.hajimi.men/v1</code></td>
 </tr>
 </tbody></table>
+<blockquote>
+<p>接口地址用专用地址 <code>api.hajimi.men</code>：长对话、大文件更稳。老地址 <code>hajimi.men</code> 照常可用，已经配好的不用改。</p>
+</blockquote>
 <p>填错这两个地址是新手最常见的翻车点，各篇教程里还会再提醒。</p>
 <h2>密钥先选对分组</h2>
 <p>建密钥时要选分组，分组决定你能用哪些模型、按什么倍率扣费：</p>
@@ -403,7 +406,7 @@
 </ol>
 <ul>
 <li>名称：哈吉米 API（随便起，认得出就行）</li>
-<li>请求地址：<code>https://hajimi.men</code></li>
+<li>请求地址：<code>https://api.hajimi.men</code></li>
 <li>API Key：粘贴你的 Claude 分组密钥</li>
 </ul>
 <ol start="3">
@@ -413,7 +416,7 @@
 </ol>
 <h2>最容易填错的地方</h2>
 <ul>
-<li><strong>请求地址不要带 /v1</strong>。Claude Code 填 <code>https://hajimi.men</code>；带 /v1 的地址是给 Codex 那类 OpenAI 兼容工具用的，填错了会直接报错</li>
+<li><strong>请求地址不要带 /v1</strong>。Claude Code 填 <code>https://api.hajimi.men</code>；带 /v1 的地址是给 Codex 那类 OpenAI 兼容工具用的，填错了会直接报错</li>
 <li><strong>也不要填成带路径的控制台页面地址</strong>，就填上面这一个根地址</li>
 <li>密钥要用 <strong>Claude 分组</strong>的。用 GPT 分组的密钥配 Claude Code，会出现没模型或 403</li>
 </ul>
@@ -434,7 +437,7 @@
 <li>点右上角「添加供应商」，选「自定义」填写：<ul>
 <li>名称：哈吉米 API</li>
 <li>API Key：粘贴你的 GPT 分组密钥</li>
-<li>API 请求地址：<code>https://hajimi.men/v1</code></li>
+<li>API 请求地址：<code>https://api.hajimi.men/v1</code></li>
 </ul>
 </li>
 <li><strong>模型列表要手动加</strong>（点「获取模型列表」拿不到，直接点「+ 手动添加」补两行）：<ul>
@@ -447,7 +450,7 @@
 </ol>
 <h2>最容易填错的地方</h2>
 <ul>
-<li><strong>请求地址必须带 /v1</strong>：<code>https://hajimi.men/v1</code>。这点和 Claude Code 正好相反（那边不带），搞混是 Codex 配不通的头号原因</li>
+<li><strong>请求地址必须带 /v1</strong>：<code>https://api.hajimi.men/v1</code>。这点和 Claude Code 正好相反（那边不带），搞混是 Codex 配不通的头号原因</li>
 <li>如果自动审批时报错，把「自动审批模型」改成你的主模型再试</li>
 <li><strong>切换供应商后必须彻底重启 Codex</strong>：切换前开着的 Codex 还在用旧配置。终端会话退出重开；桌面版要完全退出（macOS 用 ⌘Q，只关窗口不算）再打开；编辑器插件要重开窗口</li>
 </ul>
@@ -461,7 +464,7 @@
 <li>点右上角「添加供应商」，选「自定义」填写：<ul>
 <li>名称：哈吉米 API</li>
 <li>API Key：粘贴你的 Claude 分组密钥</li>
-<li>请求地址：<code>https://hajimi.men</code>（结尾不要带斜杠，更不要带 /v1）</li>
+<li>请求地址：<code>https://api.hajimi.men</code>（结尾不要带斜杠，更不要带 /v1）</li>
 <li>接入方式：保持 <strong>直连</strong></li>
 </ul>
 </li>
@@ -499,8 +502,8 @@
 <h2>最容易填错的地方</h2>
 <p>这里的<strong>请求地址填控制台地址 <code>https://hajimi.men</code></strong>，和配供应商时填的接口地址不是一回事，别互相照抄：</p>
 <ul>
-<li>供应商（Claude Code）：<code>https://hajimi.men</code></li>
-<li>供应商（Codex）：<code>https://hajimi.men/v1</code></li>
+<li>供应商（Claude Code）：<code>https://api.hajimi.men</code></li>
+<li>供应商（Codex）：<code>https://api.hajimi.men/v1</code></li>
 <li>用量查询：<code>https://hajimi.men</code>（就是控制台本身）</li>
 </ul>
 <p>三项凭证都留空的话，CC Switch 会退回用供应商的地址和 Key 去查，余额取不到——所以三项都要自己填。</p>
@@ -545,7 +548,7 @@ cc-switch update                           # 更新自身
 <h2>配置要点</h2>
 <ul>
 <li>目标 CLI 先运行一次（如 <code>claude --help</code>）让它生成自己的配置目录，再切换供应商</li>
-<li>供应商选「自定义」添加：名称随意，Claude Code 的请求地址填 <code>https://hajimi.men</code>，Codex 填 <code>https://hajimi.men/v1</code>，API Key 用本站对应分组的密钥</li>
+<li>供应商选「自定义」添加：名称随意，Claude Code 的请求地址填 <code>https://api.hajimi.men</code>，Codex 填 <code>https://api.hajimi.men/v1</code>，API Key 用本站对应分组的密钥</li>
 <li>切换后没生效，先查环境变量：如果系统里设了 <code>ANTHROPIC_API_KEY</code>、<code>OPENAI_API_KEY</code> 等变量，工具会优先读变量、盖掉这里的配置，用 <code>cc-switch env check</code> 能查出来</li>
 </ul>
 </article>
@@ -563,7 +566,7 @@ cc-switch update                           # 更新自身
 <li>供应商标识：<code>hajimi</code>（随意，认得出即可）</li>
 <li>接口格式：用 Claude 模型选 <strong>Anthropic</strong>；用 GPT、Gemini、国模选 <strong>OpenAI</strong>（Gemini、国模选 Anthropic 会报模型不存在）；不要选名字里带 Responses 的格式，本站 Gemini 与国模不支持，完整对照见 <a href="#guide-%E6%A8%A1%E5%9E%8B%E7%B1%BB%E5%9E%8B%E9%80%89%E6%8B%A9">模型类型选择指南</a></li>
 <li>API Key：粘贴对应分组的密钥（Claude 模型用 Claude 分组，GPT 模型用 GPT 分组）</li>
-<li>接口地址：Claude 格式填 <code>https://hajimi.men</code>；OpenAI 格式填 <code>https://hajimi.men/v1</code></li>
+<li>接口地址：Claude 格式填 <code>https://api.hajimi.men</code>；OpenAI 格式填 <code>https://api.hajimi.men/v1</code></li>
 </ul>
 </li>
 <li>额外选项里加一组键值：<code>{&quot;setCacheKey&quot;: true}</code>（保缓存命中，省钱）</li>
@@ -602,25 +605,25 @@ cc-switch update                           # 更新自身
 <tbody><tr>
 <td>Claude</td>
 <td>Claude 分组</td>
-<td><code>https://hajimi.men</code></td>
+<td><code>https://api.hajimi.men</code></td>
 <td>模型广场 Claude 分组的模型名</td>
 </tr>
 <tr>
 <td>GPT</td>
 <td>GPT 分组</td>
-<td><code>https://hajimi.men/v1</code></td>
+<td><code>https://api.hajimi.men/v1</code></td>
 <td>模型广场 GPT 分组的模型名</td>
 </tr>
 <tr>
 <td>国产模型</td>
 <td>国模分组</td>
-<td><code>https://hajimi.men/v1</code></td>
+<td><code>https://api.hajimi.men/v1</code></td>
 <td>模型广场国模分组的模型名</td>
 </tr>
 <tr>
 <td>Gemini</td>
 <td>Gemini 分组</td>
-<td><code>https://hajimi.men/v1</code></td>
+<td><code>https://api.hajimi.men/v1</code></td>
 <td>模型广场 Gemini 分组的模型名</td>
 </tr>
 </tbody></table>
@@ -649,7 +652,7 @@ cc-switch update                           # 更新自身
 <li>左侧导航选「模型」，在自定义模型区域点右上角「添加模型」</li>
 <li>「提供商」列表展开，在「其他」分类里选「自定义 / Custom」</li>
 <li>填写：<ul>
-<li>接口地址：<code>https://hajimi.men/v1</code></li>
+<li>接口地址：<code>https://api.hajimi.men/v1</code></li>
 <li>API Key：粘贴你的密钥</li>
 <li>模型名称：密钥分组下的模型 ID（如 Claude 分组的某个模型、国模分组的某个模型）</li>
 <li>高级配置：按所选模型实际能力勾选（支持工具调用、思考模式的就勾上，其余保持默认）</li>
@@ -680,7 +683,7 @@ cc-switch update                           # 更新自身
   &quot;models&quot;: {
     &quot;providers&quot;: {
       &quot;hajimi&quot;: {
-        &quot;baseUrl&quot;: &quot;https://hajimi.men&quot;,
+        &quot;baseUrl&quot;: &quot;https://api.hajimi.men&quot;,
         &quot;apiKey&quot;: &quot;粘贴你的Claude分组密钥&quot;,
         &quot;api&quot;: &quot;anthropic-messages&quot;,
         &quot;models&quot;: [
@@ -693,7 +696,7 @@ cc-switch update                           # 更新自身
 </code></pre>
 <p>要点：</p>
 <ul>
-<li>用 GPT、Gemini、国模、Grok、DeepSeek 时，把 <code>api</code> 改为 <code>openai-completions</code>，<code>baseUrl</code> 改为 <code>https://hajimi.men/v1</code>，密钥换成对应分组的；<code>api</code> 不要填 <code>openai-responses</code>，Gemini 与国模不支持（完整对照见 <a href="#guide-%E6%A8%A1%E5%9E%8B%E7%B1%BB%E5%9E%8B%E9%80%89%E6%8B%A9">模型类型选择指南</a>）</li>
+<li>用 GPT、Gemini、国模、Grok、DeepSeek 时，把 <code>api</code> 改为 <code>openai-completions</code>，<code>baseUrl</code> 改为 <code>https://api.hajimi.men/v1</code>，密钥换成对应分组的；<code>api</code> 不要填 <code>openai-responses</code>，Gemini 与国模不支持（完整对照见 <a href="#guide-%E6%A8%A1%E5%9E%8B%E7%B1%BB%E5%9E%8B%E9%80%89%E6%8B%A9">模型类型选择指南</a>）</li>
 <li>模型 <code>id</code> 必须和模型广场里该分组的模型名完全一致</li>
 <li>在配置里把默认模型设为 <code>hajimi/你的模型名</code>（按 OpenClaw 的模型引用格式）</li>
 </ul>
@@ -739,7 +742,7 @@ openclaw tui
 </tr>
 <tr>
 <td>API 主机</td>
-<td><code>https://hajimi.men</code></td>
+<td><code>https://api.hajimi.men</code></td>
 </tr>
 <tr>
 <td>API 路径</td>
@@ -749,7 +752,7 @@ openclaw tui
 <blockquote>
 <p><strong>注意：主机只填到域名为止，<code>/v1</code> 不用自己填</strong>——Chatbox 会自己把 <code>/v1</code> 补上；要是把 <code>/v1</code> 也填进主机，拼出来会变成 <code>/v1/v1</code>，反而连不上。</p>
 </blockquote>
-<p>填的时候看一眼界面下方实时拼出来的完整地址，应该是 <code>https://hajimi.men/v1/chat/completions</code>，对不上就是主机那栏填错了。</p>
+<p>填的时候看一眼界面下方实时拼出来的完整地址，应该是 <code>https://api.hajimi.men/v1/chat/completions</code>，对不上就是主机那栏填错了。</p>
 <ol start="5">
 <li>添加模型：在「模型」区域点「获取」，会自动拉出本站的模型列表，勾选要用的；也可以点「新建」手动填模型名（模型名从本站「模型广场」里复制，一字别差）。支持识图的模型，点它右侧的齿轮，把「视觉」能力勾上，不然发图片会报错</li>
 <li>点 API 密钥旁边的「检查」，显示连接成功</li>
@@ -796,7 +799,7 @@ openclaw tui
 </thead>
 <tbody><tr>
 <td>自定义端点（Custom Endpoint）</td>
-<td><code>https://hajimi.men/v1</code></td>
+<td><code>https://api.hajimi.men/v1</code></td>
 </tr>
 <tr>
 <td>自定义 API 密钥</td>
@@ -845,7 +848,7 @@ openclaw tui
 </tr>
 <tr>
 <td>API 地址</td>
-<td><code>https://hajimi.men/v1</code></td>
+<td><code>https://api.hajimi.men/v1</code></td>
 </tr>
 </tbody></table>
 <blockquote>
@@ -860,7 +863,7 @@ openclaw tui
 <p>类型选 OpenAI 这一个就够了：本站全部品牌的模型（GPT、Claude、Gemini、Grok、DeepSeek、国模）都装在这一个服务商里用，不要按品牌另建 Anthropic、Gemini 等其他类型的服务商来连本站（地址和协议对不上，连不通）。如果你用的版本在服务商设置里有「Responses API」之类的开关，保持关闭——Gemini 和国模不支持它，开了会报 <code>unknown provider</code>。完整对照见 <a href="#guide-%E6%A8%A1%E5%9E%8B%E7%B1%BB%E5%9E%8B%E9%80%89%E6%8B%A9">模型类型选择指南</a>。</p>
 <h2>注意事项</h2>
 <ul>
-<li>万一按上面填检测不过，把 API 地址换成完整写法再试：<code>https://hajimi.men/v1/chat/completions#</code>（末尾的 <code>#</code> 表示按这个地址原样请求、不再自动拼接路径）</li>
+<li>万一按上面填检测不过，把 API 地址换成完整写法再试：<code>https://api.hajimi.men/v1/chat/completions#</code>（末尾的 <code>#</code> 表示按这个地址原样请求、不再自动拼接路径）</li>
 <li>想用的模型在「获取模型列表」里没有，去本站「模型广场」确认过模型名后，在服务商页手动添加即可</li>
 <li>模型名必须和本站「模型广场」里的一字不差，用「获取模型列表」自动拉的不会错，手动填的自己核对</li>
 </ul>
@@ -895,7 +898,7 @@ openclaw tui
 </tr>
 <tr>
 <td>Base URL</td>
-<td><code>https://hajimi.men/v1</code></td>
+<td><code>https://api.hajimi.men/v1</code></td>
 </tr>
 <tr>
 <td>API Key</td>
@@ -947,7 +950,7 @@ openclaw tui
 </tr>
 <tr>
 <td>API Base Url</td>
-<td><code>https://hajimi.men/v1</code></td>
+<td><code>https://api.hajimi.men/v1</code></td>
 </tr>
 <tr>
 <td>API Key</td>
@@ -1157,7 +1160,7 @@ model_verbosity = &quot;high&quot;
 
 [model_providers.hajimi]
 name = &quot;hajimi&quot;
-base_url = &quot;https://hajimi.men/v1&quot;
+base_url = &quot;https://api.hajimi.men/v1&quot;
 wire_api = &quot;responses&quot;
 requires_openai_auth = true
 </code></pre>
@@ -1184,7 +1187,7 @@ web_search_request = true
 <li>macOS（终端运行）：<code>[ -z &quot;$OPENAI_API_KEY&quot; ] &amp;&amp; echo KEY=MISSING || echo KEY=OK; [ -z &quot;$OPENAI_BASE_URL&quot; ] &amp;&amp; echo URL=MISSING || echo URL=OK</code></li>
 </ul>
 <p>两个都显示 MISSING 是正常的，直接查配置；如果显示 OK，说明有残留变量在覆盖配置：Windows 用 <code>cmd /c &quot;setx OPENAI_API_KEY &quot;&quot; &amp; setx OPENAI_BASE_URL &quot;&quot;&quot;</code> 清掉，macOS 用 <code>unset OPENAI_API_KEY OPENAI_BASE_URL</code>（并检查 shell 配置文件里有没有写死）。</p>
-<p>还不行，再核对两处：<code>~/.codex/auth.json</code> 里的 Key 是否完整正确、<code>config.toml</code> 里的 <code>base_url</code> 是否为 <code>https://hajimi.men/v1</code>。</p>
+<p>还不行，再核对两处：<code>~/.codex/auth.json</code> 里的 Key 是否完整正确、<code>config.toml</code> 里的 <code>base_url</code> 是否为 <code>https://api.hajimi.men/v1</code>。</p>
 <h2>403 报错（Forbidden）</h2>
 <p>按顺序自查：</p>
 <ol>
@@ -1206,7 +1209,7 @@ web_search_request = true
 <li>VS Code 里装 Cline 插件（扩展里搜 Cline 安装），点左侧 Cline 图标打开</li>
 <li>进入 API 配置（首次打开会自动弹，已用过的点右上角齿轮进设置），按下面填：<ul>
 <li>API Provider：<strong>OpenAI Compatible</strong></li>
-<li>Base URL：<code>https://hajimi.men/v1</code></li>
+<li>Base URL：<code>https://api.hajimi.men/v1</code></li>
 <li>API Key：粘贴你的国模分组密钥</li>
 <li>Model ID：填模型广场里国模分组的模型名（以广场实时展示为准）</li>
 </ul>
@@ -1232,7 +1235,7 @@ web_search_request = true
 </tr>
 <tr>
 <td>Base URL</td>
-<td><code>https://hajimi.men/v1</code></td>
+<td><code>https://api.hajimi.men/v1</code></td>
 </tr>
 <tr>
 <td>API Key</td>
@@ -1270,7 +1273,7 @@ web_search_request = true
 <tr>
 <td>404 Not Found</td>
 <td>地址填错</td>
-<td>Claude 类工具应填 <code>https://hajimi.men</code>（不带 /v1）；OpenAI 兼容工具应填 <code>https://hajimi.men/v1</code>（带 /v1）。搞反了就是 404</td>
+<td>Claude 类工具应填 <code>https://api.hajimi.men</code>（不带 /v1）；OpenAI 兼容工具应填 <code>https://api.hajimi.men/v1</code>（带 /v1）。搞反了就是 404</td>
 </tr>
 <tr>
 <td>模型不存在 / model not found</td>
