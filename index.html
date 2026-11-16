@@ -11,15 +11,9 @@
   header .logo { font-weight: 700; font-size: 17px; }
   header .sub { color: #6b7280; font-size: 13px; }
   header a.home { margin-left: auto; color: #2563eb; text-decoration: none; font-size: 14px; }
-  .layout { display: flex; max-width: 1240px; margin: 0 auto; }
-  nav { width: 264px; flex: none; padding: 20px 14px 40px 20px; position: sticky; top: 53px; height: calc(100vh - 53px); overflow-y: auto; }
-  .nav-sec { font-size: 12px; font-weight: 700; color: #6b7280; letter-spacing: .06em; margin: 18px 8px 6px; }
-  .nav-sec:first-child { margin-top: 0; }
-  .nav-item { display: block; padding: 6px 8px; border-radius: 6px; color: #374151; text-decoration: none; font-size: 14px; line-height: 1.45; }
-  .nav-item:hover { background: #f3f4f6; }
-  .nav-item.active { background: #eff6ff; color: #1d4ed8; font-weight: 600; }
-  main { flex: 1; min-width: 0; padding: 26px 34px 80px; }
-  .page { display: none; max-width: 860px; }
+  .layout { max-width: 940px; margin: 0 auto; }
+  main { padding: 26px 34px 80px; }
+  .page { display: none; max-width: 860px; margin: 0 auto; }
   .page.show { display: block; }
   .page h1 { font-size: 28px; margin: 4px 0 18px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb; }
   .page h2 { font-size: 21px; margin: 30px 0 12px; }
@@ -34,59 +28,18 @@
   .page th { background: #f9fafb; }
   .page blockquote { margin: 14px 0; padding: 8px 14px; border-left: 3px solid #f59e0b; background: #fffbeb; color: #57534e; }
   .page blockquote p { margin: 4px 0; }
-  .menu-btn { display: none; border: 1px solid #e5e7eb; background: #fff; border-radius: 6px; padding: 5px 10px; font-size: 14px; cursor: pointer; }
   @media (max-width: 860px) {
-    .menu-btn { display: block; }
-    .layout { flex-direction: column; }
-    nav { display: none; width: 100%; position: static; height: auto; border-bottom: 1px solid #e5e7eb; }
-    nav.open { display: block; }
     main { padding: 18px 16px 60px; }
   }
 </style>
 </head>
 <body>
 <header>
-  <button class="menu-btn" onclick="document.querySelector('nav').classList.toggle('open')">目录</button>
   <div class="logo">哈吉米 API</div>
   <div class="sub">使用文档</div>
   <a class="home" href="https://hajimi.men">返回官网 →</a>
 </header>
 <div class="layout">
-  <nav><div class="nav-sec">首页</div>
-<a class="nav-item" data-slug="README" href="#README">哈吉米 API 使用文档</a>
-<div class="nav-sec">使用指南</div>
-<a class="nav-item" data-slug="guide-充值与计费说明" href="#guide-充值与计费说明">充值与计费说明</a>
-<a class="nav-item" data-slug="guide-模型广场说明" href="#guide-模型广场说明">模型广场使用说明</a>
-<a class="nav-item" data-slug="guide-模型类型选择" href="#guide-模型类型选择">模型类型选择指南：每个品牌选哪种接口</a>
-<a class="nav-item" data-slug="guide-状态与监控说明" href="#guide-状态与监控说明">服务状态与监控说明</a>
-<div class="nav-sec">CC Switch 配置</div>
-<a class="nav-item" data-slug="ccswitch-1-通用步骤" href="#ccswitch-1-通用步骤">CC Switch · 通用步骤（下载与安装）</a>
-<a class="nav-item" data-slug="ccswitch-2-claude-code" href="#ccswitch-2-claude-code">CC Switch · Claude Code 配置</a>
-<a class="nav-item" data-slug="ccswitch-3-codex" href="#ccswitch-3-codex">CC Switch · Codex 配置</a>
-<a class="nav-item" data-slug="ccswitch-4-claude-desktop" href="#ccswitch-4-claude-desktop">CC Switch · Claude Desktop 配置</a>
-<a class="nav-item" data-slug="ccswitch-5-用量查询" href="#ccswitch-5-用量查询">CC Switch · 用量查询配置</a>
-<a class="nav-item" data-slug="ccswitch-6-chatgpt" href="#ccswitch-6-chatgpt">ChatGPT 桌面版接入</a>
-<a class="nav-item" data-slug="ccswitch-7-cli" href="#ccswitch-7-cli">CC Switch CLI（命令行版，简版）</a>
-<div class="nav-sec">进阶客户端</div>
-<a class="nav-item" data-slug="advanced-opencode" href="#advanced-opencode">OpenCode 配置</a>
-<a class="nav-item" data-slug="advanced-aionui" href="#advanced-aionui">AionUI 配置</a>
-<a class="nav-item" data-slug="advanced-workbuddy" href="#advanced-workbuddy">WorkBuddy 配置</a>
-<a class="nav-item" data-slug="advanced-openclaw" href="#advanced-openclaw">OpenClaw 配置</a>
-<a class="nav-item" data-slug="advanced-chatbox" href="#advanced-chatbox">Chatbox 配置</a>
-<a class="nav-item" data-slug="advanced-sillytavern" href="#advanced-sillytavern">SillyTavern（酒馆）配置</a>
-<a class="nav-item" data-slug="advanced-cherry-studio" href="#advanced-cherry-studio">Cherry Studio 配置</a>
-<a class="nav-item" data-slug="advanced-kelivo" href="#advanced-kelivo">Kelivo 配置</a>
-<a class="nav-item" data-slug="advanced-rikkahub" href="#advanced-rikkahub">RikkaHub 配置</a>
-<div class="nav-sec">常见问题</div>
-<a class="nav-item" data-slug="faq-claude-code" href="#faq-claude-code">Claude Code 常见问题</a>
-<a class="nav-item" data-slug="faq-codex" href="#faq-codex">Codex 常见问题</a>
-<a class="nav-item" data-slug="faq-cline" href="#faq-cline">在 Cline 等工具里使用（OpenAI 兼容接入）</a>
-<a class="nav-item" data-slug="faq-通用报错速查" href="#faq-通用报错速查">通用报错速查</a>
-<div class="nav-sec">声明与政策</div>
-<a class="nav-item" data-slug="tos-服务条款" href="#tos-服务条款">服务条款</a>
-<a class="nav-item" data-slug="tos-使用政策" href="#tos-使用政策">使用政策</a>
-<a class="nav-item" data-slug="tos-服务特定条款" href="#tos-服务特定条款">服务特定条款</a>
-<a class="nav-item" data-slug="tos-支持的国家和地区" href="#tos-支持的国家和地区">支持的国家和地区</a></nav>
   <main><article class="page" id="page-README"><h1>哈吉米 API 使用文档</h1>
 <p>本站是哈吉米 API 的接入与配置教程，站点地址见下面「先记住两个地址」。照着做，基本不会出问题；做不通时，把你卡住的步骤和报错截图发到 QQ 群（群号见站内公告），管理员会看。</p>
 <h2>先记住两个地址</h2>
@@ -1707,10 +1660,6 @@ web_search_request = true
       document.getElementById('page-README').classList.add('show');
       slug = 'README';
     }
-    document.querySelectorAll('.nav-item').forEach(function (a) {
-      a.classList.toggle('active', a.dataset.slug === slug);
-    });
-    document.querySelector('nav').classList.remove('open');
     window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', route);
