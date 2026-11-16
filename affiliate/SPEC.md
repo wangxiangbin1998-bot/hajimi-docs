@@ -23,6 +23,8 @@
 > - **充值取数定死**：累计付费（有效用户与补发触发共用口径）里的 top_ups 只认 `status=success` 且 `money>0` 的订单、按 `money`（元）计；`money≤0` 或为空的订单计 ¥0。原先 money 为 0 时拿 `amount` 当 quota 的回退分支已删除（amount 语义不可靠）。兑换码面额口径不变。
 > - **四种不补情形**（结算时点判定）：①邀请人已封禁（status=2）；②被邀请人已封禁（status=2）；③邀请人已软删（deleted_at 非空）；④自邀（inviter_id == 被邀请人自身 id）。四种一律：跳过＋日志写明原因（`invite-bonus-skip`）＋**不写补发账本行**，后续轮次可再评估。补发后退款致累计跌破 ¥3 **不追回**（维持原口径）；管理员号不特殊处理。
 
+> **2026-11-17 修订（站长定案，覆盖第 4 条的门槛与分界）**：①**有效用户门槛由累计付费满 ¥3 降至满 ¥1**（口径不变：云猫批次兑换码面额＋在线充值成功订单实付，送码不计；2026-11-12 收紧口径维持）。该门槛是共同开关——有效计数、返佣升档、里程碑/月度销冠计数、¥1 补发、统计发布 effective、affcode.py 备查口径一并跟随（`EFFECTIVE_THRESHOLD_QUOTA = 1 * QUOTA_PER_UNIT`，settle.py 与 affcode.py 同步）。②**返佣比例不变**（5%/7%/8.5%/10%），**分界人数由 50/100/200 改为 10/30/80**（0–9 人 5%、10–29 人 7%、30–79 人 8.5%、80+ 人 10%；`TIERS`/`TIER_DEFS` 已改，统计发布的下一档进度自动跟随）。③里程碑红包改满 **5/15/40/100 人（¥5/18/48/128）**、月度销冠改当月新增 **20/10/5 人（¥68/38/18）**，不够不发不顺延——两项均为人工核发（群主按引擎发布的 effective 统计核对），不在引擎自动结算内，改的是规则文本与合伙人页。④新增**保底作品奖**，见三·七节。⑤affcode 自定义邀请码申请门槛不变（邀请注册满 3 人，`INVITE_REQUIRED` 未动）。
+
 ## 二、识别规则（关键，运营必须守）
 
 - 脚本识别云猫码的**唯一依据**：`redemptions.name` 以「云猫」开头（如「云猫50元卡」「云猫10元卡」），且 `status=3`（已兑换）、`redeemed_time>0`、`used_user_id>0`。
@@ -63,6 +65,17 @@
 - **单日激增**：单个邀请人单日新增被邀请人 > `DAILY_INVITEE_ALERT`（常量，现 20）→ `flag | daily-spike`；只看近 `FLAG_WINDOW_DAYS`（现 7）天，避免历史噪音。
 - **人工黑名单**：`denylist.txt`（脚本同目录，可用 `--denylist` 或环境变量 `AFFILIATE_DENYLIST` 指定；每行一个 user id，# 为注释）。名单内邀请人**照常结算**，逐笔行尾加 `[黑名单标记]`，报表末尾另有一条 `flag | denylist` 汇总其本期面额与佣金。**默认不拦截发放**，是否拦截等站长后续定。
 - 无任何标记时日志输出 `flag | 无异常标记`。
+
+## 三·七、保底作品奖（2026-11-17 新增）
+
+站长定案：给合伙人一份不看转化的保底——公开发布介绍本站的作品，审核通过每个奖 ¥5，靠作品本身计酬，与返佣并行。
+
+- **资格（申请制）**：合伙人先在官方 QQ 群联系群主申请，站长用 `works_admin.py grant <用户>` 批准后才有资格；无资格者提交的作品不计奖（结算时按当时资格状态再验一次，资格被撤销者未结作品不计）。资格存 `affiliate_work_eligibility`（user_id 唯一，status=approved/revoked）。
+- **作品登记与审核**：合伙人把作品链接＋截图交群主，站长用 `works_admin.py submit <用户> <链接> <平台> [--shot 截图说明]` 录入（status=pending），核对后 `approve`（写入 reviewed_at 与 counted_month=审核当月 YYYY-MM）或 `reject`。合格标准：公开发布（抖音/B站/小红书/LINUX DO/V2EX/知乎/公众号等），带本站名或链接、官方 QQ 群号其一。作品存 `affiliate_works`（字段：user_id/url/platform/screenshot/status/submitted_at/reviewed_at/counted_month/note）。
+- **结算**：settle.py 每日结算时在同一事务内发放——status=approved、作者有资格、未发放过的作品，每个 ¥5（`WORK_AWARD_QUOTA`），进 aff_quota 与 aff_history；按 counted_month 归月，**每人每月封顶 20 个**（`WORK_MONTHLY_CAP`，含历史已发；超封顶的作品本轮不计、日志 `work-award-cap` 告警）。账本 `affiliate_work_awards`（work_id+kind 唯一键，kind=award/clawback）防重，影子模式只报待发/待扣回清单不写库。
+- **删除扣回**：作品须保留至少 7 天；发现删除，站长用 `works_admin.py delete <作品id>` 标记 status=deleted，下一次结算自动扣回 ¥5——只扣 aff_quota、扣到 0 为止（aff_history 不回改，与 ban_clawback 惯例一致），实扣额逐笔写 clawback 行（负额）留痕；实扣为 0 时不写行、留待后续轮次重试，实扣不足全额时差额不再追扣并在日志告警（`work-clawback-shortfall`）。
+- **可见性**：hajimi_aff 统计载荷含 `total_work_award_quota` / `total_work_award_yuan`（该合伙人作品奖净额，发放－扣回），与累计佣金、补发分列。
+- **管理命令速查**：`works_admin.py init|grant|revoke|eligibility|submit|pending|approve|reject|delete|list|awards`，连接解析与 affcode.py 同套（--db / AFFILIATE_DSN / affiliate.env）。
 
 ## 四、运行方式与上线步骤
 

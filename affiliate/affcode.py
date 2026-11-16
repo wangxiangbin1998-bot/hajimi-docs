@@ -5,9 +5,14 @@
 
 规矩 v2（站长 2026-11-05 拍板）：
 - 格式：5–32 位、仅大写字母 + 数字；禁纯数字联系方式形态（如 11 位手机号样）
-- 门槛：有效邀请满 3 人（有效 = 被邀请人累计兑换云猫码满 ¥10，
-  口径与 settle.py 完全一致：redemptions 里 status=3、redeemed_time>0、
-  批次 name 以「云猫」开头，按 used_user_id 汇总面额 >= 10 * 500000）
+- 门槛：邀请满 3 人（2026-11-10 站长改定：只数申请人邀请的注册
+  用户数，不再看被邀请人是否付费。此前为「有效邀请满 3 人」——
+  有效 = 被邀请人累计付费满 ¥1，口径与 settle.py 一致：云猫批次
+  兑换码的兑换面额（2026-11-12 起收紧，此前为全部批次）+ 在线
+  充值成功订单的实付金额，按被邀请人汇总
+  >= 1 * 500000；该「有效用户」口径仍用于返佣升档/里程碑/补发等
+  其他场景，本工具的申请门槛不再使用。有效门槛 2026-11-17 站长
+  定案由 ¥3 降至 ¥1，此前为 >= 3 * 500000）
 - 唯一、先到先得（users.aff_code 本身带 UNIQUE 索引，库层强制）
 - 大小写防线（2026-11-05 补）：库层 UNIQUE 区分大小写，Xiaowang 与
   XIAOWANG 能同时入库；但皮肤已定「≥5 位码提交前自动转大写」，小写存的
@@ -60,8 +65,8 @@ from pathlib import Path
 
 QUOTA_PER_UNIT = 500000          # 与 settle.py 一致：500000 额度 = ¥1
 NAME_PREFIX = "云猫"              # 与 settle.py 一致：云猫批次识别前缀
-EFFECTIVE_THRESHOLD_QUOTA = 10 * QUOTA_PER_UNIT  # 有效用户：累计面额 >= ¥10
-EFFECTIVE_REQUIRED = 3           # 申请门槛：有效邀请满 3 人
+EFFECTIVE_THRESHOLD_QUOTA = 1 * QUOTA_PER_UNIT  # 有效用户：累计付费（云猫码+在线充值，2026-11-12 口径）>= ¥1（2026-11-17 由 ¥3 降至 ¥1；备查定义，与 settle.py 一致）
+INVITE_REQUIRED = 3              # 申请门槛：邀请满 3 人（只数邀请人数，不看付费；2026-11-10 改定）
 MIN_LEN, MAX_LEN = 5, 32         # 码长（随机码为 4 位，自定义码 5 位起错开空间）
 COOLDOWN_DAYS = 90               # 90 天内限改 1 次
 RESERVED_WORDS = ("OFFICIAL", "ADMIN", "ROOT", "SUPPORT", "SYSTEM",
@@ -234,9 +239,32 @@ def norm_code(code: str) -> str:
     return (code or "").upper()
 
 
+def _has_table(db: DB, name: str) -> bool:
+    """表是否存在（name 只来自本脚本内部常量，非外部输入）。"""
+    if db.kind == "pg":
+        row = db.execute(
+            f"SELECT to_regclass('public.{name}') IS NOT NULL AS ok"
+        ).fetchone()
+        return bool(row["ok"])
+    row = db.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+        (name,),
+    ).fetchone()
+    return row is not None
+
+
 def effective_invitee_count(db: DB, user_id: int) -> int:
-    """有效邀请数：与 settle.py 完全同口径——被邀请人累计兑换云猫码
-    （status=3、redeemed_time>0、批次名以「云猫」开头）面额 >= ¥10 的人数。"""
+    """有效邀请数：与 settle.py 完全同口径（2026-11-12 改定）——
+    被邀请人累计付费 >= ¥1 的人数（门槛 2026-11-17 由 ¥3 降至 ¥1）。
+    累计付费 = 云猫批次兑换码
+    （status=3、redeemed_time>0、name 以「云猫」开头）的兑换面额 +
+    在线充值成功订单（top_ups，status=success）实付金额折算的
+    quota；非云猫批次（如促销送码）不计。此前（2026-11-07 起）为
+    全渠道口径，2026-11-12 随 settle.py 一并收紧。
+    注：2026-11-10 起申请门槛已改为只数邀请人数（见 invitee_count），
+    本函数保留备查，不再参与门槛判定；函数逻辑与 settle.py 的有效
+    用户定义保持一致，不要在本工具里单独改它。"""
+    paid_of = {}
     rows = db.execute(
         """
         SELECT used_user_id, SUM(quota) AS face
@@ -247,12 +275,31 @@ def effective_invitee_count(db: DB, user_id: int) -> int:
         """,
         (NAME_PREFIX + "%",),
     ).fetchall()
-    face_of = {r["used_user_id"]: int(r["face"]) for r in rows}
+    for r in rows:
+        paid_of[r["used_user_id"]] = int(r["face"] or 0)
+    if _has_table(db, "top_ups"):
+        for r in db.execute(
+            "SELECT user_id, amount, money FROM top_ups WHERE status = 'success'"
+        ).fetchall():
+            money = float(r["money"] or 0)
+            paid_q = int(round(money * QUOTA_PER_UNIT)) if money > 0 else int(r["amount"] or 0)
+            if paid_q > 0:
+                paid_of[r["user_id"]] = paid_of.get(r["user_id"], 0) + paid_q
     invitees = db.execute(
         "SELECT id FROM users WHERE inviter_id = ?", (user_id,)
     ).fetchall()
     return sum(1 for r in invitees
-               if face_of.get(r["id"], 0) >= EFFECTIVE_THRESHOLD_QUOTA)
+               if paid_of.get(r["id"], 0) >= EFFECTIVE_THRESHOLD_QUOTA)
+
+
+def invitee_count(db: DB, user_id: int) -> int:
+    """邀请人数：申请人邀请的注册用户总数（users.inviter_id = 本人），
+    不看被邀请人是否付费、是否活跃。2026-11-10 站长改定：申请自定义
+    邀请码的门槛只数这个数（满 INVITE_REQUIRED 人即可）。"""
+    row = db.execute(
+        "SELECT COUNT(*) AS n FROM users WHERE inviter_id = ?", (user_id,)
+    ).fetchone()
+    return int(row["n"] or 0)
 
 
 def run_checks(db: DB, ledger_rows, ledger_exists: bool, username: str, new_code: str,
@@ -303,10 +350,10 @@ def run_checks(db: DB, ledger_rows, ledger_exists: bool, username: str, new_code
     else:
         add(True, "大小写规范化", "输入即大写形，无需转换（大小写变体一律视为同一个码）")
 
-    # ---- 门槛：有效邀请满 3 ----
-    eff = effective_invitee_count(db, user["id"])
-    add(eff >= EFFECTIVE_REQUIRED, "申请门槛",
-        f"有效邀请 {eff} 人（要求满 {EFFECTIVE_REQUIRED} 人；有效 = 被邀请人累计兑换云猫码满 ¥10，口径同结算脚本）")
+    # ---- 门槛：邀请满 3 人（2026-11-10 改定：只数邀请人数，不看付费） ----
+    inv = invitee_count(db, user["id"])
+    add(inv >= INVITE_REQUIRED, "申请门槛",
+        f"已邀请 {inv} 人（邀请满 {INVITE_REQUIRED} 位用户即可申请自定义邀请码；只数邀请人数，不看被邀请人付费）")
 
     # ---- 90 天限改 1 次（查台账） ----
     last_change = None
